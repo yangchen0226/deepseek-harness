@@ -1,0 +1,17 @@
+{
+  "name": "@deepseek-ai/dsh-memory-service",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Self-hosted HTTP memory service backing the dsh memory-remote provider.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "main": "server.mjs",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "dependencies": {
+    "pg": "^8.13.1"
+  }
+}

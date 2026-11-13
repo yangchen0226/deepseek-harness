@@ -1,0 +1,98 @@
+# Agent preset memory: durable memory over the harness memory service.
+#
+# The memory rows stay disabled until MEMORY_SERVICE_URL names a deployed service,
+# because the provider has no usable default endpoint and a memory-less preset
+# must remain startable. Set MEMORY_SERVICE_URL to the deployed Edge Function base
+# (for example `https://<project>.supabase.co/functions/v1/memory`) plus
+# MEMORY_SERVICE_TOKEN, then select this preset in a session.
+- insert:
+    - id: preset-memory
+      name: '@deepseek-ai/dsh-agent-preset'
+      config:
+        id: memory
+        name: Memory
+        description: Recalls durable user memories before each turn and stores each finished turn.
+        order: 2
+        plugins:
+          - id: memory-remote
+            name: '@deepseek-ai/dsh-memory-remote'
+            disabled: !!js "!process.env.MEMORY_SERVICE_URL"
+            config:
+              serviceUrl: !!js process.env.MEMORY_SERVICE_URL ?? ''
+              token: !!js process.env.MEMORY_SERVICE_TOKEN ?? ''
+              workspaceId: !!js process.env.MEMORY_WORKSPACE ?? 'default'
+              endUserOtherId: !!js process.env.MEMORY_USER ?? 'local'
+              # A cross-border TLS handshake to a remote service costs 0.4-1.3 s
+              # before the first byte, so the provider's 1500 ms default turns a
+              # reachable service into an intermittent outage. The service itself
+              # answers in single-digit milliseconds.
+              timeoutMs: !!js Number(process.env.MEMORY_TIMEOUT_MS ?? 4000)
+          - id: tool-memory
+            name: '@deepseek-ai/dsh-tool-memory'
+            disabled: !!js "!process.env.MEMORY_SERVICE_URL"
+            config:
+              defaultMode: quick
+              enableForget: true
+          - id: memory-autosave
+            name: '@deepseek-ai/dsh-memory-autosave'
+            disabled: !!js "!process.env.MEMORY_SERVICE_URL"
+            config:
+              recallMode: quick
+              recallOnTurnStart: true
+              writeOnTurnEnd: true
+          - id: memory-agent
+            name: '@deepseek-ai/dsh-memory-agent'
+            disabled: !!js "!process.env.MEMORY_SERVICE_URL || !process.env.MEMORY_AGENT_STUDIO"
+            config:
+              provider:
+                baseUrl: !!js process.env.MEMORY_SERVICE_URL ?? ''
+                apiKey: !!js process.env.MEMORY_SERVICE_TOKEN ?? ''
+                endUserOtherId: !!js process.env.MEMORY_USER ?? 'local'
+              recallMode: quick
+          - id: persona
+            name: '@deepseek-ai/dsh-persona'
+            config:
+              prefix: >-
+                You are a coding agent powered by the {{model}} model. You have durable memory
+                across sessions. Before answering questions about the user's preferences,
+                prior decisions, or earlier work, rely on what the session already recalled;
+                when the session shows no relevant memory, call `memory_recall` with a rewritten
+                question. Record a fact only when the user states it plainly and it will matter
+                later; never write summaries of the conversation or transient details.
+          - id: agent-instructions
+            name: '@deepseek-ai/dsh-agent-instructions'
+            config:
+              maxBytes: 65536
+          - id: time-context
+            name: '@deepseek-ai/dsh-time-context'
+          - id: tool-bash
+            name: '@deepseek-ai/dsh-tool-bash'
+            disabled: !!js process.platform === 'win32'
+          - id: tool-pwsh
+            name: '@deepseek-ai/dsh-tool-pwsh'
+            disabled: !!js process.platform !== 'win32'
+          - id: tool-fs
+            name: '@deepseek-ai/dsh-tool-fs'
+            config:
+              applyPatch: false
+          - id: tool-fs-search
+            name: '@deepseek-ai/dsh-tool-fs-search'
+            config:
+              sampleOverCapGlobResults: false
+          - id: tool-jobs
+            name: '@deepseek-ai/dsh-tool-jobs'
+          - id: tool-todo
+            name: '@deepseek-ai/dsh-tool-todo'
+            config:
+              allowParallelInProgress: true
+          - id: compaction
+            name: cordis:group
+            group: true
+            isolate:
+              compaction: true
+              toolResultPruner: true
+            config:
+              - id: compaction-basic
+                name: '@deepseek-ai/dsh-compaction-basic'
+              - id: command-compact
+                name: '@deepseek-ai/dsh-command-compact'

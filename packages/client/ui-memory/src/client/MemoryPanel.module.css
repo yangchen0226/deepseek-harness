@@ -1,0 +1,93 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 12px 16px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--dsw-alias-text-secondary);
+}
+
+.question {
+  margin: 0;
+  color: var(--dsw-alias-text-primary);
+  word-break: break-word;
+}
+
+.label {
+  margin-right: 6px;
+  color: var(--dsw-alias-text-tertiary);
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: var(--dsw-alias-card-fill);
+  color: var(--dsw-alias-text-primary);
+  word-break: break-word;
+}
+
+.message {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 24px 16px;
+  color: var(--dsw-alias-text-secondary);
+}
+
+.hint {
+  margin: 0;
+  color: var(--dsw-alias-text-tertiary);
+  font-size: 12px;
+}
+
+.degraded {
+  margin: 0;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: var(--dsw-alias-card-fill);
+  color: var(--dsw-alias-text-secondary);
+  font-size: 12px;
+}
+
+.trace {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12px;
+  color: var(--dsw-alias-text-secondary);
+}
+
+.traceRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.traceMeta {
+  color: var(--dsw-alias-text-tertiary);
+}

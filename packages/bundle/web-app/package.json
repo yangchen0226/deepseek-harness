@@ -39,6 +39,7 @@
     "presets/ptc.patch.yml",
     "presets/minimal.patch.yml",
     "presets/cordis.patch.yml",
+    "presets/memory.patch.yml",
     "lib/public-url-*.js",
     "lib/types/**/*.d.ts",
     "lib/types/**/*.d.ts.map",
@@ -53,7 +54,8 @@
         "./presets/standard.patch.yml",
         "./presets/ptc.patch.yml",
         "./presets/minimal.patch.yml",
-        "./presets/cordis.patch.yml"
+        "./presets/cordis.patch.yml",
+        "./presets/memory.patch.yml"
       ]
     }
   },
@@ -98,6 +100,7 @@
     "@deepseek-ai/dsh-client-ui-goal": "workspace:*",
     "@deepseek-ai/dsh-client-ui-input-trigger": "workspace:*",
     "@deepseek-ai/dsh-client-ui-jobs": "workspace:*",
+    "@deepseek-ai/dsh-client-ui-memory": "workspace:*",
     "@deepseek-ai/dsh-client-ui-layout": "workspace:*",
     "@deepseek-ai/dsh-client-ui-message-feedback": "workspace:*",
     "@deepseek-ai/dsh-client-ui-model-selection": "workspace:*",
@@ -193,6 +196,12 @@
     "@deepseek-ai/dsh-tool-subagent": "workspace:*",
     "@deepseek-ai/dsh-tool-subagent-control": "workspace:*",
     "@deepseek-ai/dsh-tool-todo": "workspace:*",
+    "@deepseek-ai/dsh-memory": "workspace:*",
+    "@deepseek-ai/dsh-memory-autosave": "workspace:*",
+    "@deepseek-ai/dsh-memory-agent": "workspace:*",
+    "@deepseek-ai/dsh-memory-bear": "workspace:*",
+    "@deepseek-ai/dsh-memory-remote": "workspace:*",
+    "@deepseek-ai/dsh-tool-memory": "workspace:*",
     "@deepseek-ai/dsh-tool-web": "workspace:*",
     "@deepseek-ai/dsh-tool-workflow": "workspace:*",
     "@deepseek-ai/dsh-tool-workspace-dependencies": "workspace:*",

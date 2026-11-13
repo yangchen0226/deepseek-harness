@@ -428,6 +428,11 @@
     - id: ui-jobs
       name: '@deepseek-ai/dsh-client-ui-jobs'
 
+    # Memory panel: the session's recall trace and recalled items, read from the
+    # `memoryAutosave` projection the memory preset contributes.
+    - id: ui-memory
+      name: '@deepseek-ai/dsh-client-ui-memory'
+
     # Task management and Session reminder catalog over the Host Schedule
     # service mounted above.
     - id: ui-schedule

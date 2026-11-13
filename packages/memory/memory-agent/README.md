@@ -1,0 +1,50 @@
+---
+description: "In-session agent creation for the memory integration: composes and registers a memory-enabled agent preset from a model tool call, with provider credentials kept out of the model."
+kind: "package-reference"
+---
+
+# @deepseek-ai/dsh-memory-agent
+
+English | [中文](README.zh.md)
+
+## Summary
+
+`dsh-memory-agent` lets a conversation produce a lasting assistant. When the user asks for an agent that focuses on one area of work, the model calls `memory_agent_create`; the tool composes a preset from the deployment's own memory provider settings plus the requested persona and registers it. The new agent appears in the preset roster and is startable immediately.
+
+## Use this package
+
+```yaml
+- name: '@deepseek-ai/dsh-memory-agent'
+  config:
+    provider:
+      baseUrl: http://127.0.0.1:8002
+      apiKey: mbr_...
+      endUserOtherId: alice
+    recallMode: quick
+    presetOrder: 90
+```
+
+| Field | Default | Meaning |
+|---|---|---|
+| `provider.baseUrl` | required | MemoryBear origin copied into every created preset |
+| `provider.apiKey` | required | Secret credential; never model-visible and never logged |
+| `provider.endUserOtherId` | required | The memory identity the created agents share |
+| `recallMode` | `quick` | Automatic recall breadth for created agents |
+| `presetOrder` | `90` | Roster position, keeping created agents below the shipped ones |
+
+## Understand the implementation
+
+- The credential lives in this plugin's configuration and is copied into the created preset's provider row. It never appears in a tool argument, a tool result, or a session event.
+- Each created preset carries the memory provider, the memory tools, the autosave consumer, a persona built from the requested name and instructions, and the ordinary file, shell, and todo tools.
+- Registration is process-local. Created presets are held in one effect and unregistered when the plugin disposes; persisting them belongs to an editor surface, not to a model tool.
+- A duplicate display name is rejected rather than overwriting the first agent of that name.
+
+## Known Limitations and Deferred Work
+
+- Created agents do not survive a host restart; only a roster editor that writes the preset to disk would make them durable.
+- No mirrored MemoryBear application: the agent exists in this harness only, so other MemoryBear clients cannot run it.
+- No skill selection: a created agent gets the default tool set, not a specialized skill.
+
+## Dev Note
+
+Behavior tests drive the real tool pipeline with a preset-registry stand-in (`tests/memory-agent.spec.ts`) and assert the composed rows, the credential boundary, duplicate rejection, and disposal.
