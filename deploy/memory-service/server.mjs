@@ -286,6 +286,32 @@ async function forget(identity, body) {
 }
 
 /**
+ * POST /list — stored memories for browsing, newest first.
+ * @param {{ workspaceId: string, otherId: string }} identity - the request identity.
+ * @param {Record<string, unknown>} body - the list request.
+ * @returns the page and the user's total.
+ */
+async function list(identity, body) {
+  const query = typeof body.query === 'string' && body.query.trim() !== '' ? body.query.trim() : null
+  const limit = Number.isInteger(body.limit) ? Math.min(Math.max(body.limit, 1), 200) : 50
+  const endUserId = await ensureEndUser(identity)
+  const { rows } = await pool.query(
+    'select id, content, kind, created_at, hits, total from memory_list($1, $2, $3)',
+    [endUserId, query, limit],
+  )
+  return {
+    items: rows.map(row => ({
+      id: String(row.id),
+      content: String(row.content),
+      kind: String(row.kind),
+      createdAt: new Date(row.created_at).toISOString(),
+      hits: Number(row.hits),
+    })),
+    total: rows.length === 0 ? 0 : Number(rows[0].total),
+  }
+}
+
+/**
  * POST /profile — the user's items grouped into readable sections.
  * @param {{ workspaceId: string, otherId: string }} identity - the request identity.
  * @param {Record<string, unknown>} body - the profile request.
@@ -310,8 +336,8 @@ async function profile(identity, body) {
   return { sections }
 }
 
-/** Route table: the five routes the provider calls. */
-const ROUTES = { health, recall, remember, forget, profile }
+/** Route table: the six routes the provider calls. */
+const ROUTES = { health, recall, remember, forget, list, profile }
 
 const server = createServer(async (request, response) => {
   const started = Date.now()

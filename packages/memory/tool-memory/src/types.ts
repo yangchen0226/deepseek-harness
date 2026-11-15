@@ -73,6 +73,19 @@ declare module '@deepseek-ai/dsh-session/types' {
       readonly error?: string
     }
 
+    /**
+     * The human's per-turn memory switch. Recorded rather than held in client
+     * state because it decides whether the turn runs with recalled text, so a
+     * replay must reach the same answer the model did. The setting applies to
+     * the turn it was made in and is read back as `false` once that turn ends.
+     */
+    'memory/mute': {
+      /** True when the turn runs without recall and without a write. */
+      readonly muted: boolean
+      /** What asked for the change; only the input dock offers it today. */
+      readonly origin: 'input-dock'
+    }
+
     /** One removal request and what the engine removed. */
     'memory/forget': {
       /** The selector the caller named. */

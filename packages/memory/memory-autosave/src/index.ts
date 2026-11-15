@@ -83,6 +83,8 @@ const stateSchema: ZodType<MemoryAutosaveState> = zod.object({
     role: zod.union([zod.literal('user'), zod.literal('assistant')]),
     content: zod.string(),
   })),
+  muted: zod.boolean(),
+  mutedTurn: zod.number().nullable(),
 })
 
 /**
@@ -100,9 +102,23 @@ export async function apply(ctx: Context, config: Config): Promise<void> {
     key: 'memoryAutosave',
     stateVersion: 1,
     stateSchema,
-    init: () => ({ lastRecall: null, turnText: [] }),
+    init: () => ({ lastRecall: null, turnText: [], muted: false, mutedTurn: null }),
     apply: (state, event) => {
-      if (event.type === 'turn/start') return { ...state, turnText: [] }
+      // The switch lasts exactly one turn. `turn/end` cannot clear it: the write
+      // path reads the same event and must still see the turn as muted. So the
+      // next `turn/start` retires a switch whose turn has already run.
+      if (event.type === 'turn/start') {
+        const muted = state.muted && (state.mutedTurn === null || state.mutedTurn === event.data.turn)
+        return {
+          ...state,
+          turnText: [],
+          muted,
+          mutedTurn: muted ? event.data.turn : null,
+        }
+      }
+      if (event.type === 'memory/mute') {
+        return { ...state, muted: event.data.muted, ...event.data.muted ? {} : { mutedTurn: null } }
+      }
       if (event.type === 'memory/recall') {
         return {
           ...state,
@@ -142,6 +158,7 @@ export async function apply(ctx: Context, config: Config): Promise<void> {
     ctx.fiber.assertActive()
     const decision = await next()
     if (!recallOnTurnStart || step !== 1 || decision.kind === 'reject' || signal.aborted) return decision
+    if (handle.stateOf(agent.session).muted) return decision
     const question = lastUserText(decision.messages)
     if (question === undefined || question.length < minChars) return decision
     const result = await ctx.memory.recall({ question, mode: recallMode, turn: 0 })
@@ -178,7 +195,11 @@ export async function apply(ctx: Context, config: Config): Promise<void> {
   ctx.on('session/event', (session, event) => {
     if (!writeOnTurnEnd || event.type !== 'turn/end') return
     const handle = projectionReady
-    void handle.then(projection => writeTurn(ctx, session, projection.stateOf(session).turnText, minChars))
+    void handle.then((projection) => {
+      const state = projection.stateOf(session)
+      if (state.muted) return
+      return writeTurn(ctx, session, state.turnText, minChars)
+    })
   })
 
   await projectionReady

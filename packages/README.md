@@ -41,7 +41,7 @@ Every package lives in exactly one group; new packages join existing groups, and
 | [`ssh/`](ssh/README.md) | POSIX remote connection with paired filesystem, subprocess and sandbox providers |
 | [`shell/`](shell/README.md) | Bash capability family: executor seam, local impl, model-facing tools |
 | [`terminal/`](terminal/README.md) | Persistent PTY service with owner-scoped sessions and a local shell backend |
-| [`ptc-runtime/`](ptc-runtime/README.md) | PTC execution capability family: Service Definition + sandboxed Node provider + PTC mode Consumer |
+| [`ptc-runtime/`](ptc-runtime/README.md) | PTC execution family: Service Definition + sandboxed Node provider + PTC mode Consumer |
 | [`computer-use/`](computer-use/README.md) | Exclusive named desktop-provider registration |
 | [`browser-use/`](browser-use/README.md) | Exclusive named browser-provider registration |
 | [`sandbox/`](sandbox/README.md) | Process-confinement seam; bwrap/Landlock/Seatbelt backends |
@@ -54,24 +54,24 @@ Every package lives in exactly one group; new packages join existing groups, and
 | [`subagent/`](subagent/README.md) | Subagent capability family: provider-registry contract and model-facing delegation tools |
 | [`team/`](team/README.md) | Team coordination: shared task boards and model-facing task tools |
 | [`jobs/`](jobs/README.md) | Generic background-job runtime and model-facing job control tools |
-| [`memory/`](memory/README.md) | Long-term memory capability family: seam, MemoryBear provider, model tools, autosave consumer, in-session agent creation |
+| [`memory/`](memory/README.md) | Long-term memory: seam, tools, autosave |
 | [`experimental/`](experimental/README.md) | Capabilities under evaluation; [status and support policy](experimental/README.md#status) |
 | [`workflow/`](workflow/README.md) | Workflow seam, PTC process engine, and the model-facing `workflow` tool |
 | [`web/`](web/README.md) | Web capability family: seam, search/fetch providers, model-facing web tools |
-| [`document/`](document/README.md) | Shared Host Office rendering, conversion, and recalculation, the Office tools, and Kit engine resolution |
+| [`document/`](document/README.md) | Office rendering, conversion, and recalculation, the Office tools, and Kit engine resolution |
 | [`attachment/`](attachment/README.md) | Durable attachment identity, validation, local content-addressed storage |
-| [`spill/`](spill/README.md) | Spill capability family: storage seam, local impl, tool-result spill policy |
+| [`spill/`](spill/README.md) | Spill family: storage seam, local impl, tool-result spill policy |
 | [`todo/`](todo/README.md) | The model-facing `todo_write` tool |
 | [`plan/`](plan/README.md) | Plan collaboration state with a direct entry command and reviewed exit |
 | [`preset/`](preset/README.md) | Per-session agent composition from preset `cordis.yml` files |
-| [`guard/`](guard/README.md) | Loop-hygiene guards: advisory repeat-call reminders + the `tools/execute` deadline enforcer |
+| [`guard/`](guard/README.md) | Loop-hygiene guards: repeat-call reminders + the `tools/execute` deadline enforcer |
 | [`bundle/`](bundle/README.md) | Installable `dsh --profile` patch layers |
-| [`extensions/`](extensions/README.md) | Agent runtime self-modification: live plugin/service inspection and model-written mount/unmount |
+| [`extensions/`](extensions/README.md) | Runtime self-modification: live plugin/service inspection and model-written mount/unmount |
 | [`mcp/`](mcp/README.md) | External Model Context Protocol servers exposed as native tools |
-| [`session/`](session/README.md) | Durable session data plane: persistence seam + backends, projection seam, log-backed titles, session reporting |
-| [`session-query/`](session-query/README.md) | Session retrieval family: logical corpus, bounded reads, lineage, semantic filtering, SQLite full-text search |
+| [`session/`](session/README.md) | Durable session data plane: persistence seam + backends, projection seam, log-backed titles, reporting |
+| [`session-query/`](session-query/README.md) | Session retrieval: logical corpus, bounded reads, lineage, semantic filtering, full-text search |
 | [`settings/`](settings/README.md) | User-settings seam + file-backed provider |
-| [`credentials/`](credentials/README.md) | Credential-reference and credential-record seam + env-over-`.env` provider + authorization flows that ask a human |
+| [`credentials/`](credentials/README.md) | Credential-reference and record seam + env-over-`.env` provider + authorization flows that ask a human |
 | [`storage/`](storage/README.md) | Non-session storage hub + backends + domain form |
 | [`workspace/`](workspace/README.md) | Workspace entity |
 | [`sdk/`](sdk/README.md) | Out-of-process SDK: JSON-RPC protocol and TypeScript client/server |

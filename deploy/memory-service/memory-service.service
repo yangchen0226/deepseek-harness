@@ -1,6 +1,5 @@
 [Unit]
 Description=dsh memory service
-Documentation=https://github.com/deepseek-harness
 After=network-online.target postgresql.service
 Wants=network-online.target
 

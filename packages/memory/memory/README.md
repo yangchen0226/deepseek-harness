@@ -15,7 +15,9 @@ English | [中文](README.zh.md)
 
 - [Use this package](#use-this-package)
 - [Understand the implementation](#understand-the-implementation)
+- [Model Experience](#model-experience)
 - [Known Limitations and Deferred Work](#known-limitations-and-deferred-work)
+- [Dev Note](#dev-note)
 
 -----
 
@@ -44,12 +46,24 @@ Every request carries an explicit mode and the turn it belongs to; a provider re
 - `MemoryForgetResult.removed` counts real removals. A provider whose backend exposes no removal rejects with `MEMORY_UNSUPPORTED`; consumers register the forget tool only where that promise holds.
 - Error codes live in `MEMORY_ERROR_CODES`; route on `MemoryError.code`, not on message text.
 
-<a id="known-limitations-and-deferred-work"></a>
+<a id="model-experience"></a>
+## Model Experience
+
+None, as the seam only declares the engine interface and its wire types, so every model-facing use belongs to the consumers that call it.
+
+#### KV Cache effect
+
+None; the package never assembles or sends provider requests.
+
 ## Known Limitations and Deferred Work
+
+<a id="known-limitations-and-deferred-work"></a>
 
 - No local (embedded) provider ships in this package; the seam exists so one can be added without touching consumers.
 - The definition has no notion of memory scopes beyond one caller identity. Cross-user or cross-workspace sharing would need a scope field and a provider that honors it.
 
-## Dev Note
+### Dev Note
+
+<a id="dev-note"></a>
 
 Type-only package: no runtime behavior beyond the abstract class. Structural tests live in `tests/service.spec.ts`.

@@ -12,6 +12,8 @@ import type {
   MemoryForgetRequest,
   MemoryForgetResult,
   MemoryHealth,
+  MemoryListRequest,
+  MemoryListResult,
   MemoryProfileRequest,
   MemoryProfileResult,
   MemoryRecallRequest,
@@ -47,6 +49,10 @@ class ScriptedEngine extends MemoryEngine {
   }
 
   profile(_request: MemoryProfileRequest): Promise<MemoryProfileResult> {
+    return Promise.reject(new Error('not scripted'))
+  }
+
+  list(_request: MemoryListRequest): Promise<MemoryListResult> {
     return Promise.reject(new Error('not scripted'))
   }
 

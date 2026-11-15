@@ -47,6 +47,7 @@ This table connects model-visible tool names to the plugin package and service s
 | `@deepseek-ai/dsh-tool-jobs` | `job_kill`, `job_list`, `job_output` | `ctx.tools`, `ctx.jobs`, `ctx.systemPrompt` | `tool/call`, `tool/result`, `user/message via agent.inject() for background completion notices` | - | The kind-agnostic background-job controller: background bash commands and PTY sends are read, listed, and killed through the same three tools. Loading the plugin attaches the controller that arms producers' `ctx.jobs.start()`. |
 | `@deepseek-ai/dsh-tool-agent-team` | `team_task_create`, `team_task_get`, `team_task_list`, `team_task_update` | `ctx.tools`, `ctx.systemPrompt`, `ctx.agentTeams`, `ctx.subagents`, `an exact live Team member Agent` | `tool/call`, `team/task`, `tool/result` | - | Four task-board tools share the subagent tree’s root Session. Enabling Team mode on the root Session adds task-board guidance alongside standard subagent delegation and control tools. Standard subagent controls provide required identity independently of Team mode. |
 | `@deepseek-ai/dsh-tool-todo` | `todo_write` | `ctx.tools`, `owning Agent session` | `tool/call`, `todo/write`, `tool/result` | - | todo_write is session-owned state; UIs render the latest todo/write event as a checklist. `allowParallelInProgress` is required with no default, so the catalog states its choice: `true`, whose description invites several `in_progress` items. A deployment choosing `false` receives the same tool with a description asking for exactly one active task. |
+| `@deepseek-ai/dsh-tool-memory` | `memory_forget`, `memory_recall`, `memory_write` | `ctx.tools`, `ctx.memory`, `owning Agent session` | `tool/call`, `memory/recall`, `memory/write`, `memory/forget`, `tool/result` | - | memory_forget is opt-in: `enableForget` has no default, so the catalog states the choice it documents, `true` against a backend that implements removal. A backend rejecting MEMORY_UNSUPPORTED still registers the tool when a deployment sets `true`; the refusal then reaches the model as the tool result. `memory_recall` answers `degraded: true` with no items when the engine is unreachable, and the tool says so rather than reporting an empty search. |
 | `@deepseek-ai/dsh-tool-working-directory` | `working_directory` | `ctx.tools`, `ctx.workingDirectory` | `tool/call`, `working-directory/change`, `user context for directory changes`, `tool/result` | - | Reads or changes the calling Session directory. Existing shells and processes retain their own directories; origin metadata and permission roots stay fixed. |
 | `@deepseek-ai/dsh-experimental-tool-worktree` | `create_worktree` | `ctx.tools`, `ctx.worktrees`, `a calling Agent` | `tool/call`, `Git branch and checkout`, `working-directory/change`, `tool/result` | - | Enabled through the Change requests & worktrees bundle on Web and Desktop; other profiles can select the standalone bundle. Creates a new branch and checkout from a pinned local commit under existing write permissions, then changes the Session directory. Leaving retains the branch and checkout. |
 | `@deepseek-ai/dsh-tool-workflow` | `workflow` | `ctx.tools`, `ctx.workflowEngine`, `ctx.systemPrompt`, `a calling Agent (exec.agent parents the script children)` | `tool/call`, `tool/result` | - | - |
@@ -2645,6 +2646,98 @@ Record and update a task list to plan multi-step work and show progress; skip it
 Source: [`packages/todo/tool-todo/src/index.ts`](../packages/todo/tool-todo/src/index.ts)
 
 todo_write is session-owned state; UIs render the latest todo/write event as a checklist. `allowParallelInProgress` is required with no default, so the catalog states its choice: `true`, whose description invites several `in_progress` items. A deployment choosing `false` receives the same tool with a description asking for exactly one active task.
+
+<a id="deepseek-aidsh-tool-memory"></a>
+
+## `@deepseek-ai/dsh-tool-memory`
+
+### `memory_forget`
+
+Remove a memory the user asked to delete or corrected. Pass an exact memory id from a recall result when you have one.
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "target": {
+      "type": "string",
+      "description": "A memory id, or a natural-language selector."
+    }
+  },
+  "required": [
+    "target"
+  ]
+}
+```
+
+Source: [`packages/memory/tool-memory/src/index.ts`](../packages/memory/tool-memory/src/index.ts)
+
+### `memory_recall`
+
+Search durable memories from earlier sessions: preferences, decisions, facts about the user or their projects. Pick `express` for a simple lookup, `quick` for a broad keyword-and-vector sweep, `normal` when the question needs splitting before retrieval, `deep` when it depends on relationships between facts, and `meta` when the answer is a profile detail about the user. Rewrite the question into a retrieval form that names the entity and the fact sought. Empty results mean no matching memory, not an error.
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "question": {
+      "type": "string",
+      "description": "The retrieval question, rewritten with keywords."
+    },
+    "search_mode": {
+      "type": "string",
+      "description": "Retrieval breadth; defaults to quick.",
+      "enum": [
+        "deep",
+        "normal",
+        "quick",
+        "express",
+        "meta"
+      ]
+    }
+  },
+  "required": [
+    "question"
+  ]
+}
+```
+
+Source: [`packages/memory/tool-memory/src/index.ts`](../packages/memory/tool-memory/src/index.ts)
+
+### `memory_write`
+
+Record one durable fact the user stated: a preference, a decision, an event, a relationship, or a procedure worth recalling in a later session. Write only what the user affirmed; do not summarize the conversation. Success means the memory was accepted for indexing.
+
+```json
+{
+  "type": "object",
+  "properties": {
+    "content": {
+      "type": "string",
+      "description": "The fact, as one self-contained sentence."
+    },
+    "kind": {
+      "type": "string",
+      "description": "The category the fact belongs to.",
+      "enum": [
+        "preference",
+        "fact",
+        "event",
+        "relationship",
+        "procedure"
+      ]
+    }
+  },
+  "required": [
+    "content",
+    "kind"
+  ]
+}
+```
+
+Source: [`packages/memory/tool-memory/src/index.ts`](../packages/memory/tool-memory/src/index.ts)
+
+memory_forget is opt-in: `enableForget` has no default, so the catalog states the choice it documents, `true` against a backend that implements removal. A backend rejecting MEMORY_UNSUPPORTED still registers the tool when a deployment sets `true`; the refusal then reaches the model as the tool result. `memory_recall` answers `degraded: true` with no items when the engine is unreachable, and the tool says so rather than reporting an empty search.
 
 <a id="deepseek-aidsh-tool-working-directory"></a>
 

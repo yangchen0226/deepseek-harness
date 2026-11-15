@@ -37,6 +37,15 @@ export interface MemoryAutosaveState {
   } | null
   /** User and assistant text appended since the last `turn/start`, in order. */
   readonly turnText: readonly TurnMessage[]
+  /**
+   * The input dock's switch: true while memory is off. Armed between turns, it
+   * applies to the turn that starts next; arming mid-turn stops the rest of
+   * that turn. The fold clears it when the next turn starts, so the switch
+   * never silently persists across turns the user did not mute.
+   */
+  readonly muted: boolean
+  /** The turn the armed switch applied to, or null when no turn was muted. */
+  readonly mutedTurn: number | null
 }
 
 declare module '@deepseek-ai/dsh-session-projection/types' {

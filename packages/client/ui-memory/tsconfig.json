@@ -37,6 +37,12 @@
     },
     {
       "path": "../../core/session"
+    },
+    {
+      "path": "../../api/memory-controller/tsconfig.client.json"
+    },
+    {
+      "path": "../../typert/protocol"
     }
   ]
 }

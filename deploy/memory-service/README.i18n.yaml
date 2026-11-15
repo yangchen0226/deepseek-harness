@@ -1,0 +1,40 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write deploy/memory-service/README.md
+/:
+  en: 55fc0fdc59b2f303
+  zh: a98b8d914ce8d255
+/memory-service-self-hosted-memory-backend:
+  en: 796f372c18b4d16e
+  zh: 5f71fb8358dc348b
+/memory-service-self-hosted-memory-backend/server-state:
+  en: af19d87d0534dc87
+  zh: 44dba25546c07d63
+/memory-service-self-hosted-memory-backend/latency:
+  en: 6cd8d0b2d1da9271
+  zh: 1724f9445c6a294b
+/memory-service-self-hosted-memory-backend/first-deploy:
+  en: 033c75812d97069f
+  zh: 99ab0147f61f7a99
+/memory-service-self-hosted-memory-backend/database-design:
+  en: 2d053b02128bf41f
+  zh: c6fca6be6738abab
+/memory-service-self-hosted-memory-backend/database-design/why-bigrams:
+  en: a6505b8b9e5508c0
+  zh: 55e232eed06f58b2
+/memory-service-self-hosted-memory-backend/routes:
+  en: 211548d972a0da1f
+  zh: c1eca73cd91f7c0b
+/memory-service-self-hosted-memory-backend/client-configuration:
+  en: 4e8a6c69c6593b3a
+  zh: 748030858d6ac96d
+/memory-service-self-hosted-memory-backend/verification:
+  en: 80937328f4f7b240
+  zh: f88454c968d631e0
+/memory-service-self-hosted-memory-backend/operations:
+  en: 76670c343402d14d
+  zh: 57277d066e7a2623
+/memory-service-self-hosted-memory-backend/resources:
+  en: 74d858e561c2ac58
+  zh: 17a2ddf0f477bfb8

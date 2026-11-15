@@ -1,0 +1,58 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/memory/tool-memory/README.md
+/:
+  en: 45e7b876c35a6a9c
+  zh: e14e3a29a1f607e3
+/deepseek-ai-dsh-tool-memory:
+  en: fd232e28c2effa41
+  zh: 87a83bebad94fb6e
+/deepseek-ai-dsh-tool-memory/summary:
+  en: edf9b9e647923a93
+  zh: 029a7c592460949f
+/deepseek-ai-dsh-tool-memory/table-of-contents:
+  en: d847818057704f68
+  zh: 1d94b4f39d779818
+/deepseek-ai-dsh-tool-memory/use-this-package:
+  en: cf6ae81c7a6f9893
+  zh: 071e004663f79b3e
+/deepseek-ai-dsh-tool-memory/use-this-package/what-each-call-does:
+  en: ae03473f34e788fc
+  zh: 058f220f62ab04e5
+/deepseek-ai-dsh-tool-memory/understand-the-implementation:
+  en: ac01665b4aa18444
+  zh: 763b7902e6da387f
+/deepseek-ai-dsh-tool-memory/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/deepseek-ai-dsh-tool-memory/model-experience/tool-schemas:
+  en: 3039bc5e7a796b21
+  zh: 6b7a9eaf69c9ea53
+/deepseek-ai-dsh-tool-memory/model-experience/tool-schemas/what-the-model-sees:
+  en: 953c499a69e17b62
+  zh: a31f4bebfc012dea
+/deepseek-ai-dsh-tool-memory/model-experience/tool-schemas/token-effect:
+  en: f8e56a6b40b02706
+  zh: 56c7923e5f503000
+/deepseek-ai-dsh-tool-memory/model-experience/tool-schemas/kv-cache-effect:
+  en: bafdd1df48210d1a
+  zh: efa9d2b450dc04ee
+/deepseek-ai-dsh-tool-memory/model-experience/results:
+  en: 8e1b2953471f22ba
+  zh: 765a7c4655654c0a
+/deepseek-ai-dsh-tool-memory/model-experience/results/what-the-model-sees:
+  en: c4811f896c03b9e2
+  zh: 922cd8afbe643797
+/deepseek-ai-dsh-tool-memory/model-experience/results/token-effect:
+  en: b3e54fce0f131ba8
+  zh: 5b98ee7c589a8435
+/deepseek-ai-dsh-tool-memory/model-experience/results/kv-cache-effect:
+  en: 218c345dcde735ce
+  zh: 2ca807d7ed7074ca
+/deepseek-ai-dsh-tool-memory/known-limitations-and-deferred-work:
+  en: e07c802e2b754d72
+  zh: 86b86cf047d3e502
+/deepseek-ai-dsh-tool-memory/known-limitations-and-deferred-work/dev-note:
+  en: fafcd13b9c770781
+  zh: 0b88e8f174b671b8

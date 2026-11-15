@@ -60,6 +60,36 @@ export interface MemoryRecallRequest {
   readonly limit?: number
 }
 
+/** One listing request. */
+export interface MemoryListRequest {
+  /** Free-text filter; an empty or omitted value lists everything. */
+  readonly query?: string
+  /** Maximum items to return; the engine's own cap applies when omitted. */
+  readonly limit?: number
+}
+
+/** One stored memory as a browsing caller sees it. */
+export interface MemoryEntry {
+  /** Engine-assigned identity. */
+  readonly id: string
+  /** The stored text. */
+  readonly content: string
+  /** The storage category the engine classified it under. */
+  readonly kind: string
+  /** ISO-8601 creation time, when the engine reports one. */
+  readonly createdAt?: string
+  /** How many times a recall returned this item, when the engine counts it. */
+  readonly hits?: number
+}
+
+/** The outcome of one listing. */
+export interface MemoryListResult {
+  /** Stored memories, newest first. */
+  readonly items: readonly MemoryEntry[]
+  /** Total the engine holds for this user, which may exceed `items.length`. */
+  readonly total?: number
+}
+
 /** One message submitted for durable storage. */
 export interface MemoryMessage {
   /** Who produced the message. */

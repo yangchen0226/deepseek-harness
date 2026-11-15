@@ -12,6 +12,8 @@ import type {
   MemoryForgetRequest,
   MemoryForgetResult,
   MemoryHealth,
+  MemoryListRequest,
+  MemoryListResult,
   MemoryProfileRequest,
   MemoryProfileResult,
   MemoryRecallRequest,
@@ -22,10 +24,13 @@ import type {
 
 export { MEMORY_ERROR_CODES, MemoryError, type MemoryErrorCode } from './error.ts'
 export type {
+  MemoryEntry,
   MemoryForgetRequest,
   MemoryForgetResult,
   MemoryItem,
   MemoryKind,
+  MemoryListRequest,
+  MemoryListResult,
   MemoryMessage,
   MemoryProfileRequest,
   MemoryProfileResult,
@@ -96,6 +101,18 @@ export abstract class MemoryEngine extends Service {
    * @returns the requested sections.
    */
   abstract profile(request: MemoryProfileRequest): Promise<MemoryProfileResult>
+
+  /**
+   * List stored memories for browsing rather than for answering a question.
+   *
+   * A backend that can only retrieve by similarity rejects with
+   * `MemoryError('unsupported')` instead of returning an approximate list under
+   * a browsing contract, because a caller renders what it receives as "what the
+   * engine holds".
+   * @param request - an optional filter and limit.
+   * @returns stored memories, newest first.
+   */
+  abstract list(request: MemoryListRequest): Promise<MemoryListResult>
 
   /**
    * Report whether the engine can serve requests.

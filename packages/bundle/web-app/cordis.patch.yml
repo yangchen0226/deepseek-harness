@@ -121,6 +121,12 @@
     # the roster rides the session control stream above.
     - id: job-controller
       name: '@deepseek-ai/dsh-api-job-controller'
+
+    # Memory panel operations over Typert Remote: browsing, profile reads, and
+    # removal. Reads and mutations the model performs go through the memory
+    # tools instead; these serve a human viewing the panel.
+    - id: memory-controller
+      name: '@deepseek-ai/dsh-api-memory-controller'
     # Workspace file service: bounded read, directory listing, and the
     # agent-write change feed inside the session workspace root.
     - id: terminal-controller

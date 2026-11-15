@@ -12,10 +12,13 @@ import type { Context } from '@deepseek-ai/cordis'
 import z from '@deepseek-ai/schemastery'
 import { MemoryEngine, MemoryError } from '@deepseek-ai/dsh-memory'
 import type {
+  MemoryEntry,
   MemoryForgetRequest,
   MemoryForgetResult,
   MemoryHealth,
   MemoryItem,
+  MemoryListRequest,
+  MemoryListResult,
   MemoryProfileRequest,
   MemoryProfileResult,
   MemoryRecallRequest,
@@ -61,6 +64,15 @@ interface RemoteItem {
   readonly score?: number
   readonly query?: string
   readonly source?: string
+}
+
+/** One listed entry as the service returns it. */
+interface RemoteEntry {
+  readonly id?: string
+  readonly content?: string
+  readonly kind?: string
+  readonly createdAt?: string
+  readonly hits?: number
 }
 
 /** The recall route's payload. */
@@ -148,6 +160,21 @@ export class RemoteMemoryEngine extends MemoryEngine {
       ...request.sections === undefined ? {} : { sections: [...request.sections] },
     })
     return { sections: body.sections ?? {} }
+  }
+
+  async list(request: MemoryListRequest): Promise<MemoryListResult> {
+    const body = await this.call<{ items?: readonly RemoteEntry[]; total?: number }>('list', {
+      ...request.query === undefined ? {} : { query: request.query },
+      ...request.limit === undefined ? {} : { limit: request.limit },
+    })
+    const items: MemoryEntry[] = (body.items ?? []).map((entry, index) => ({
+      id: entry.id ?? `remote-${String(index)}`,
+      content: entry.content ?? '',
+      kind: entry.kind ?? 'unknown',
+      ...entry.createdAt === undefined ? {} : { createdAt: entry.createdAt },
+      ...entry.hits === undefined ? {} : { hits: entry.hits },
+    }))
+    return body.total === undefined ? { items } : { items, total: body.total }
   }
 
   async health(): Promise<MemoryHealth> {

@@ -1,0 +1,34 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/memory/memory-bear/README.md
+/:
+  en: 75255fb0a66e3c53
+  zh: 725eebd0f7f857e6
+/deepseek-ai-dsh-memory-bear:
+  en: ac51d67ab7653b34
+  zh: aa93249690c7b721
+/deepseek-ai-dsh-memory-bear/summary:
+  en: 992781f607ef15dd
+  zh: b778f0034d03225c
+/deepseek-ai-dsh-memory-bear/table-of-contents:
+  en: 73f2687f0589969a
+  zh: 9d83fe5770f80fed
+/deepseek-ai-dsh-memory-bear/use-this-package:
+  en: 5185eb7d2d520e0e
+  zh: 50a550656c8ed1fd
+/deepseek-ai-dsh-memory-bear/understand-the-implementation:
+  en: ed0dd2ec18dbadd7
+  zh: 81f50e72a405bc87
+/deepseek-ai-dsh-memory-bear/model-experience:
+  en: de6156af5bb64551
+  zh: 3cd7abd0bfb8754f
+/deepseek-ai-dsh-memory-bear/model-experience/kv-cache-effect:
+  en: 47f982e326fe77fd
+  zh: 9dcda8465dec361c
+/deepseek-ai-dsh-memory-bear/known-limitations-and-deferred-work:
+  en: 220dcd6c4e02e8d8
+  zh: 93cc4e09bc0d71f8
+/deepseek-ai-dsh-memory-bear/known-limitations-and-deferred-work/dev-note:
+  en: 669b6dfada5ac068
+  zh: 0b88e8f174b671b8

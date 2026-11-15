@@ -1,0 +1,46 @@
+/* MemoryDock: a one-line strip in the composer dock column, matching the goal
+   strip's width and elevation so two strips stack without a seam. */
+
+.dock {
+  box-sizing: border-box;
+  width: calc(
+    100% -
+    var(--dsh-composer-side-clearance) -
+    var(--dsh-composer-side-clearance) -
+    var(--dsh-composer-dock-inset) -
+    var(--dsh-composer-dock-inset) -
+    var(--dsh-composer-dock-inset) -
+    var(--dsh-composer-dock-inset)
+  );
+  margin: 0 auto;
+}
+
+.bar {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: calc(var(--dsh-composer-card-max-width) - 4 * var(--dsh-composer-dock-inset));
+  height: 36px;
+  margin: 0 auto;
+  padding: 4px 12px;
+  border: 0;
+  --dsw-elevation-stroke-color: var(--dsw-alias-border-l1);
+  border-radius: var(--dsw-radius-md);
+  box-shadow: var(--dsw-elevation-panel);
+}
+
+.label {
+  font-size: 12px;
+  color: var(--dsw-alias-text-secondary);
+}
+
+.hint {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 12px;
+  color: var(--dsw-alias-text-tertiary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

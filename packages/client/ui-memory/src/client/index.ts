@@ -3,16 +3,23 @@
  * session's memory state — the last recall and the items it returned — plus a
  * header action that opens it.
  *
- * All state comes from the `memoryAutosave` session projection; the plugin
- * holds no transport state and makes no memory calls of its own.
+ * The recall view reads the `memoryAutosave` session projection. The library
+ * and profile views read the Session's engine through `ctx.memoryPanel`; the
+ * plugin binds those operations to the Session the tab is open in.
  * @module @deepseek-ai/dsh-client-ui-memory/client
  */
 
 import type { Context as ClientContext } from '@deepseek-ai/cordis'
+import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import { bindPanelActions } from './actions.ts'
+import { MemoryDock } from './MemoryDock.tsx'
+import type { MemoryDockInjected } from './MemoryDock.tsx'
 import { MemoryPanel } from './MemoryPanel.tsx'
+import type { MemoryPanelInjected } from './MemoryPanel.tsx'
 import { MemoryHeaderAction } from './MemoryHeaderAction.tsx'
 import type { MemoryHeaderInjected } from './MemoryHeaderAction.tsx'
 import { en, NS, zh, type MemoryKey } from './locales.ts'
+import type {} from '@deepseek-ai/dsh-api-memory-controller/client'
 import type {} from '@deepseek-ai/dsh-client-locale/client'
 import type {} from '@deepseek-ai/dsh-client-ui-conversation/client'
 import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
@@ -26,11 +33,13 @@ declare module '@deepseek-ai/dsh-client-ui-slots' {
   }
 }
 
-export type { MemoryPanelProps } from './MemoryPanel.tsx'
+export type { MemoryDockInjected, MemoryDockProps } from './MemoryDock.tsx'
+export type { MemoryPanelInjected, MemoryPanelProps } from './MemoryPanel.tsx'
+export type { MemoryPanelActions, PanelOutcome } from './actions.ts'
 export type { MemoryHeaderActionProps, MemoryHeaderInjected } from './MemoryHeaderAction.tsx'
 
-/** Required services: the sidebar tab registry, slots, and dictionaries. */
-export const inject = ['sidebarRightTabs', 'slots', 'locale']
+/** Required services: the sidebar tab registry, slots, dictionaries, and the panel Remote. */
+export const inject = ['sidebarRightTabs', 'slots', 'locale', 'memoryPanel']
 
 /** Stable identity of the tab type and its body registration. */
 const TAB_ID = 'memory-panel'
@@ -54,8 +63,16 @@ export function apply(ctx: ClientContext): void {
       description: () => t('guideDescription'),
     }],
   }), 'ui-memory: tab type')
+  // Read the service now: injected faces run on caller stacks whose dynamic
+  // context has not declared it.
+  const panel = ctx.memoryPanel
   ctx.effect(() => ctx.slots.inject('sidebar.right.pane.tab', () => ctx.slots.register(
-    { name: 'sidebar.right.pane.tab', key: TAB_ID, locale: NS },
+    {
+      name: 'sidebar.right.pane.tab',
+      key: TAB_ID,
+      locale: NS,
+      inject: (sessionId: SessionId): MemoryPanelInjected => ({ actions: bindPanelActions(panel, sessionId) }),
+    },
     MemoryPanel,
   )), 'ui-memory: tab body')
   ctx.effect(() => ctx.slots.register({
@@ -67,9 +84,18 @@ export function apply(ctx: ClientContext): void {
       open: () => { ctx.sidebarRight.openTab('memory') },
     }),
   }, MemoryHeaderAction), 'ui-memory: header action')
+  ctx.effect(() => ctx.slots.inject('conversation.input.dock', () => ctx.slots.register({
+    name: 'conversation.input.dock',
+    id: 'memory-mute',
+    order: 20,
+    locale: NS,
+    inject: (sessionId: SessionId): MemoryDockInjected => ({
+      setMuted: async muted => (await bindPanelActions(panel, sessionId).mute(muted)).kind === 'ok',
+    }),
+  }, MemoryDock)), 'ui-memory: input dock switch')
 }
 
-export { MemoryPanel }
+export { MemoryDock, MemoryPanel }
 
 declare module '@deepseek-ai/dsh-client-ui-sidebar-right/client' {
   interface SidebarRightTabParamsMap {

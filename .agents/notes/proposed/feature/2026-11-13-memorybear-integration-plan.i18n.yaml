@@ -1,0 +1,55 @@
+# Bilingual-pair consistency record for 2026-11-13-memorybear-integration-plan.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/proposed/feature/2026-11-13-memorybear-integration-plan.md
+/agent-note-deep-memorybear-integration-plan:
+  en: d50eeaec5a4d1094
+  zh: 730e249156c4c5c6
+/agent-note-deep-memorybear-integration-plan/problem:
+  en: dbc86f281bec47c8
+  zh: 2bd9761206177fcd
+/agent-note-deep-memorybear-integration-plan/problem/packaging-constraints-learned-the-hard-way:
+  en: 8496cef7fe804686
+  zh: 45169d27381412cc
+/agent-note-deep-memorybear-integration-plan/proposal:
+  en: 77a9bf3a58cf0ecf
+  zh: 422c8fab9245a9e6
+/agent-note-deep-memorybear-integration-plan/layering-and-package-structure:
+  en: ca44223e62c50533
+  zh: f777a0d01d25f916
+/agent-note-deep-memorybear-integration-plan/layering-and-package-structure/service-definition-shape:
+  en: c1e2bedd19cf05a2
+  zh: 4a1b1bbc44f17a3b
+/agent-note-deep-memorybear-integration-plan/identity-mapping:
+  en: 9a59c8a4a646e33a
+  zh: 1bc8dbe4947e01ba
+/agent-note-deep-memorybear-integration-plan/session-behavior:
+  en: 6d77d81c589d20c7
+  zh: 0568bc6db5e4002b
+/agent-note-deep-memorybear-integration-plan/model-visible-tool-contract:
+  en: d2bf5b1b9f197562
+  zh: 590c9e23b4a72eb4
+/agent-note-deep-memorybear-integration-plan/client-memorybear-pages-the-session-window:
+  en: 83c2c3ec3ee3fda0
+  zh: c0459424034c1a16
+/agent-note-deep-memorybear-integration-plan/agent-creation:
+  en: 112a0db23b17d51d
+  zh: fd671bd5b3f6425d
+/agent-note-deep-memorybear-integration-plan/real-usage-scenarios:
+  en: ef9052786fda9958
+  zh: f292e1f6b635236c
+/agent-note-deep-memorybear-integration-plan/implementation-order:
+  en: aa436f03e4a73daa
+  zh: 6402c1db2018823e
+/agent-note-deep-memorybear-integration-plan/alternatives-considered:
+  en: 0bd4010c3fa2dcd2
+  zh: e144774439ea7e5c
+/agent-note-deep-memorybear-integration-plan/acceptance-criteria:
+  en: d969699d756ef9ac
+  zh: afb6db8d4b37b5a2
+/agent-note-deep-memorybear-integration-plan/risks:
+  en: ef32e5308a58c13f
+  zh: b0558adfa9860faf
+/agent-note-deep-memorybear-integration-plan/open-questions:
+  en: 9e254307ed382fb6
+  zh: 9480f2f846543a80

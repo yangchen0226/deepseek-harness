@@ -23,6 +23,8 @@ import { MemoryEngine, MemoryError } from '@deepseek-ai/dsh-memory'
 import type {
   MemoryHealth,
   MemoryItem,
+  MemoryListRequest,
+  MemoryListResult,
   MemoryProfileRequest,
   MemoryProfileResult,
   MemoryRecallRequest,
@@ -210,6 +212,13 @@ export class MemoryBearEngine extends MemoryEngine {
   profile(_request: MemoryProfileRequest): Promise<MemoryProfileResult> {
     return Promise.reject(new MemoryError(
       'profile reads need the MemoryBear management surface, which this provider does not configure',
+      'MEMORY_UNSUPPORTED',
+    ))
+  }
+
+  list(_request: MemoryListRequest): Promise<MemoryListResult> {
+    return Promise.reject(new MemoryError(
+      'this memory backend exposes no listing on its API-key surface; MemoryBear retrieves by similarity only',
       'MEMORY_UNSUPPORTED',
     ))
   }

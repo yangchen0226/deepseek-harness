@@ -158,6 +158,42 @@ as $$
   where id = any (p_ids);
 $$;
 
+-- Browsing list: what this user holds, newest first, optionally filtered by a
+-- substring. Distinct from `memory_recall`, which ranks against a question.
+create or replace function memory_list(
+  p_end_user uuid,
+  p_query text default null,
+  p_limit integer default 50
+) returns table (
+  id uuid,
+  content text,
+  kind text,
+  created_at timestamptz,
+  hits integer,
+  total bigint
+)
+language sql
+stable
+as $$
+  with matched as (
+    select i.id, i.content, i.kind, i.created_at, i.hits
+    from memory_item i
+    where i.end_user_id = p_end_user
+      and not i.archived
+      and (p_query is null or p_query = '' or i.content ilike '%' || p_query || '%')
+  )
+  select
+    m.id,
+    m.content,
+    m.kind,
+    m.created_at,
+    m.hits,
+    (select count(*) from matched) as total
+  from matched m
+  order by m.created_at desc
+  limit greatest(1, least(p_limit, 200))
+$$;
+
 -- Derived profile sections. There is no separate profile table: a section is a
 -- projection of the items a user has stated under the matching kind.
 create or replace function memory_profile(

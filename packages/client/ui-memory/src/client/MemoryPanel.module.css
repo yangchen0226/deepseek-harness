@@ -91,3 +91,44 @@
 .traceMeta {
   color: var(--dsw-alias-text-tertiary);
 }
+
+.view {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.entry {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 4px 6px 8px;
+  border-radius: 6px;
+  background: var(--dsw-alias-card-fill);
+}
+
+.entryBody {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.entryText {
+  color: var(--dsw-alias-text-primary);
+  word-break: break-word;
+}
+
+.entryMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--dsw-alias-text-tertiary);
+}
+
+.entryError {
+  color: var(--dsw-alias-text-secondary);
+}

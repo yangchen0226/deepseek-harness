@@ -77,6 +77,8 @@ import * as StagehandBrowserTools from '@deepseek-ai/dsh-experimental-browser-us
 import TeamService from '@deepseek-ai/dsh-agent-team'
 import * as ToolTeam from '@deepseek-ai/dsh-tool-agent-team'
 import * as ToolTodo from '@deepseek-ai/dsh-tool-todo'
+import * as ToolMemory from '@deepseek-ai/dsh-tool-memory'
+import type { MemoryEngine } from '@deepseek-ai/dsh-memory'
 import type PluginManager from '@deepseek-ai/dsh-plugin-manager'
 import * as PluginManagerTools from '@deepseek-ai/dsh-plugin-manager/tools'
 import type PluginMarket from '@deepseek-ai/dsh-plugin-market'
@@ -695,6 +697,28 @@ const TOOL_PACKAGES: ToolPackage[] = [
     },
     note:
       'todo_write is session-owned state; UIs render the latest todo/write event as a checklist. `allowParallelInProgress` is required with no default, so the catalog states its choice: `true`, whose description invites several `in_progress` items. A deployment choosing `false` receives the same tool with a description asking for exactly one active task.',
+  },
+  {
+    pkg: '@deepseek-ai/dsh-tool-memory',
+    dir: 'tool-memory',
+    source: 'packages/memory/tool-memory/src/index.ts',
+    requires: ['ctx.tools', 'ctx.memory', 'owning Agent session'],
+    writes: ['tool/call', 'memory/recall', 'memory/write', 'memory/forget', 'tool/result'],
+    async mount(ctx) {
+      // Schema harvest never executes a tool, so the seam is a stub: every
+      // operation rejects, which is what a run that never calls one observes.
+      ctx.provide('memory', {
+        recall: () => Promise.reject(new Error('not scripted')),
+        remember: () => Promise.reject(new Error('not scripted')),
+        forget: () => Promise.reject(new Error('not scripted')),
+        profile: () => Promise.reject(new Error('not scripted')),
+        list: () => Promise.reject(new Error('not scripted')),
+        health: () => Promise.resolve({ reachable: false }),
+      } as MemoryEngine)
+      await ctx.plugin(ToolMemory, { defaultMode: 'quick', enableForget: true })
+    },
+    note:
+      'memory_forget is opt-in: `enableForget` has no default, so the catalog states the choice it documents, `true` against a backend that implements removal. A backend rejecting MEMORY_UNSUPPORTED still registers the tool when a deployment sets `true`; the refusal then reaches the model as the tool result. `memory_recall` answers `degraded: true` with no items when the engine is unreachable, and the tool says so rather than reporting an empty search.',
   },
   {
     pkg: '@deepseek-ai/dsh-tool-working-directory',

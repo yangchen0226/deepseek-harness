@@ -1,4 +1,8 @@
-# Integrating the MemoryBear memory engine into DSH
+# Agent Note: Integrating the MemoryBear memory engine into DSH
+
+Status: proposed
+
+English | [中文](2026-11-13-memory-engine-integration.zh.md)
 
 ## Problem
 

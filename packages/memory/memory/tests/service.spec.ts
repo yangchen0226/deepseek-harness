@@ -3,6 +3,8 @@ import { Context } from '@deepseek-ai/cordis'
 import { MemoryEngine, MemoryError } from '@deepseek-ai/dsh-memory'
 import type {
   MemoryHealth,
+  MemoryListRequest,
+  MemoryListResult,
   MemoryRecallRequest,
   MemoryRecallResult,
   MemoryRememberRequest,
@@ -32,6 +34,10 @@ class StubEngine extends MemoryEngine {
 
   async profile(_request: MemoryProfileRequest): Promise<MemoryProfileResult> {
     return { sections: {} }
+  }
+
+  async list(_request: MemoryListRequest): Promise<MemoryListResult> {
+    return { items: [] }
   }
 
   async health(): Promise<MemoryHealth> {

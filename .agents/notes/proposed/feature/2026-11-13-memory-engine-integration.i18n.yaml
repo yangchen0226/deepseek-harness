@@ -1,0 +1,52 @@
+# Bilingual-pair consistency record for 2026-11-13-memory-engine-integration.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write .agents/notes/proposed/feature/2026-11-13-memory-engine-integration.md
+/agent-note-integrating-the-memorybear-memory-engine-into-dsh:
+  en: 047296c9b0dd9591
+  zh: 4a38adc12c5d87d3
+/agent-note-integrating-the-memorybear-memory-engine-into-dsh/problem:
+  en: 3de016accfdaa541
+  zh: 9811b7308bc192bb
+/agent-note-integrating-the-memorybear-memory-engine-into-dsh/proposal:
+  en: 986dd8097aac4d3d
+  zh: 986dd8097aac4d3d
+/agent-note-integrating-the-memorybear-memory-engine-into-dsh/proposal/1-a-capability-seam-not-a-port:
+  en: 495416170505a2eb
+  zh: 50ac8ba09b9210ab
+/agent-note-integrating-the-memorybear-memory-engine-into-dsh/proposal/2-identity-mapping:
+  en: b51747fbb69d6030
+  zh: 73fc304e85e56f3b
+/agent-note-integrating-the-memorybear-memory-engine-into-dsh/proposal/3-session-behavior:
+  en: bf2ca4d439cea00e
+  zh: 3887cc2d3342ec20
+/agent-note-integrating-the-memorybear-memory-engine-into-dsh/proposal/4-model-facing-tools:
+  en: bcf59b402e756b4c
+  zh: ee69f27f36effcb0
+/agent-note-integrating-the-memorybear-memory-engine-into-dsh/proposal/5-session-events-model-visible-logged:
+  en: c171a5ad03e7e597
+  zh: 1a190450fe038a80
+/agent-note-integrating-the-memorybear-memory-engine-into-dsh/proposal/6-client-ui-inside-the-session-window:
+  en: 8c40de62a9c9c5f5
+  zh: 212542017e0481d1
+/agent-note-integrating-the-memorybear-memory-engine-into-dsh/proposal/7-agent-creation-through-a-session:
+  en: 8679c674181d8b4a
+  zh: f2bfc6118e5df99b
+/agent-note-integrating-the-memorybear-memory-engine-into-dsh/proposal/8-file-level-plan:
+  en: 6007e4e8bc93db54
+  zh: de3b9e4eeb9cce1c
+/agent-note-integrating-the-memorybear-memory-engine-into-dsh/proposal/9-usage-scenarios:
+  en: 68f8221dc72f7dec
+  zh: b7e42e4df793105a
+/agent-note-integrating-the-memorybear-memory-engine-into-dsh/alternatives-considered:
+  en: faf3f6f572c38847
+  zh: f4e9ae830f3bfcb6
+/agent-note-integrating-the-memorybear-memory-engine-into-dsh/acceptance-criteria:
+  en: 6875a1ee2ff51f70
+  zh: 48f53c16a771da38
+/agent-note-integrating-the-memorybear-memory-engine-into-dsh/risks:
+  en: 357a518a04a26437
+  zh: b0d993b2bba03bb8
+/agent-note-integrating-the-memorybear-memory-engine-into-dsh/open-questions:
+  en: 4b8f3fd64cb3ea7c
+  zh: ea5fc5e7dec5256c

@@ -24,7 +24,7 @@ The memory group lets a session reach knowledge that outlives it. A provider sto
 
 | Package | Role | ctx key |
 |---|---|---|
-| [`memory`](memory/README.md) | Defines the seam: recall, write acceptance, removal, profile, reachability, and the failure codes | `ctx.memory` |
+| [`memory`](memory/README.md) | Defines the seam: recall, browsing, write acceptance, removal, profile, reachability, and the failure codes | `ctx.memory` |
 | [`memory-remote`](memory-remote/README.md) | Provider over the deployed HTTP memory service; owns identity headers, transport, and degradation | registers on `ctx.memory` |
 | [`memory-bear`](memory-bear/README.md) | Provider for an existing MemoryBear deployment | registers on `ctx.memory` |
 | [`tool-memory`](tool-memory/README.md) | Model-facing `memory_recall`, `memory_write`, and opt-in `memory_forget` | registers on `ctx.tools` |
@@ -40,7 +40,6 @@ The client surface lives in [`client/ui-memory`](../client/ui-memory/README.md).
 
 - [Memory service deployment](../../deploy/memory-service/README.md) — the PostgreSQL schema, the five service routes, and the client environment variables.
 - [Session subsystem](../../docs/subsystems/session.md) — the event log and projection rules the `memoryAutosave` unit follows.
-- [MemoryBear integration plan](../../.agents/notes/proposed/feature/2026-11-13-memorybear-integration-plan.zh.md) — identity mapping, session behavior, UI mapping, and usage scenarios.
 
 -----
 

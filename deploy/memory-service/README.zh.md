@@ -1,4 +1,11 @@
+---
+description: "自建 HTTP 记忆服务：服务器现状、部署步骤、PostgreSQL 表结构、六个路由与运维。"
+kind: "package-group"
+---
+
 # 记忆服务部署
+
+[English](README.md) | 中文
 
 自建 HTTP 记忆服务，供 `@deepseek-ai/dsh-memory-remote` provider 调用。数据库是本机 PostgreSQL 17，进程由 systemd 托管，nginx 反向代理，凭据只存在于一个 env 文件里。
 
@@ -27,11 +34,11 @@ PG 14 的集群 `14/main` 仍在 5432 上、是空的。停用它需要 root 操
 ## 首次部署
 
 ```bash
-# 1. 依赖与目录
+# 1. Dependencies and directories
 sudo useradd --system --home /opt/memory-service --shell /usr/sbin/nologin memory
 sudo mkdir -p /opt/memory-service /etc/memory-service
 
-# 2. 数据库
+# 2. Database
 sudo -u postgres psql -p 5433 -c "create role memory_app login password '<password>'"
 sudo -u postgres psql -p 5433 -c "create database memory_svc owner memory_app encoding 'UTF8'"
 sudo -u postgres psql -p 5433 -d memory_svc -v ON_ERROR_STOP=1 -f schema.sql
@@ -44,22 +51,22 @@ sudo -u postgres psql -p 5433 -d memory_svc \
   -c 'alter function memory_profile(uuid,text[],integer) owner to memory_app' \
   -c 'alter function memory_bigrams(text) owner to memory_app'
 
-# 3. 服务
+# 3. Service
 sudo cp server.mjs package.json /opt/memory-service/
 sudo chown -R memory:memory /opt/memory-service
 cd /opt/memory-service && sudo -u memory npm install --omit=dev
 
-# 4. 凭据与服务单元
-sudo install -o root -g memory -m 640 env.example /etc/memory-service/env   # 先填真实值
+# 4. Credentials and unit
+sudo install -o root -g memory -m 640 env.example /etc/memory-service/env   # fill in real values first
 sudo cp memory-service.service /etc/systemd/system/
 sudo systemctl daemon-reload && sudo systemctl enable --now memory-service
 
-# 5. 反向代理
+# 5. Reverse proxy
 sudo cp nginx-memory.conf /etc/nginx/sites-available/memory
 sudo ln -s /etc/nginx/sites-available/memory /etc/nginx/sites-enabled/memory
 sudo nginx -t && sudo systemctl reload nginx
 
-# 6. 备份
+# 6. Backup
 sudo install -o root -g root -m 700 memory-backup.sh /usr/local/bin/
 sudo install -o root -g root -m 644 memory-backup.cron /etc/cron.d/memory-backup
 ```
@@ -74,6 +81,7 @@ sudo install -o root -g root -m 644 memory-backup.cron /etc/cron.d/memory-backup
 | `memory_item` | 一条记忆。`content_hash` 按用户去重，`tsv` 是生成列 |
 | `memory_ensure_end_user` | 幂等创建/读取身份行 |
 | `memory_recall` | 排序检索，返回 `score` 与 `created_at` |
+| `memory_list` | 浏览列表：按时间倒序、子串过滤、返回总数 |
 | `memory_touch` | 记录被召回，供 UI 与时效性使用 |
 | `memory_profile` | 按 `kind` 归类成四个画像分区 |
 | `memory_bigrams` | 中文二元组，检索的核心信号 |
@@ -81,10 +89,10 @@ sudo install -o root -g root -m 644 memory-backup.cron /etc/cron.d/memory-backup
 评分是四项加权：
 
 ```
-0.35 × CJK 二元组覆盖率
+0.35 × CJK bigram coverage
 0.25 × pg_trgm word_similarity
-0.25 × ts_rank_cd（'simple' 全文）
-0.15 × 30 天半衰期时效项
+0.25 × ts_rank_cd ('simple' full text)
+0.15 × 30-day half-life recency
 ```
 
 `memory_item_trgm` 与 `memory_item_tsv` 是 GIN 索引，`memory_item_user_recent` 是活跃项的部分索引。
@@ -97,7 +105,7 @@ sudo install -o root -g root -m 644 memory-backup.cron /etc/cron.d/memory-backup
 
 ## 路由
 
-五个路由全部是 `POST`，需要 `authorization: Bearer <token>`、`x-workspace-id`、`x-end-user-other-id`。另有 `GET /healthz` 供 systemd/监控使用，不要 token。
+六个路由全部是 `POST`，需要 `authorization: Bearer <token>`、`x-workspace-id`、`x-end-user-other-id`。另有 `GET /healthz` 供 systemd/监控使用，不要 token。
 
 | 路由 | 请求 | 响应 |
 |---|---|---|
@@ -105,11 +113,14 @@ sudo install -o root -g root -m 644 memory-backup.cron /etc/cron.d/memory-backup
 | `/recall` | `{ question, mode, limit? }` | `{ items, trace, degraded, latencyMs }` |
 | `/remember` | `{ sessionId, turn, messages, kinds? }` | `{ queued, batchId, stored }` |
 | `/forget` | `{ target }` | `{ removed }` |
+| `/list` | `{ query?, limit? }` | `{ items, total }` |
 | `/profile` | `{ sections? }` | `{ sections }` |
 
 `mode` 决定检索宽度与最低分：`express` 5/0.12，`quick` 8/0.08，`normal` 12/0.05，`deep` 20/0.03，`meta` 8/0.08。
 
 `queued: true` 表示批次已被受理。本服务同步写入，所以受理时数据已落库；`stored` 报告实际新增行数，重复内容被唯一索引丢弃时小于 `messages` 长度。
+
+`list` 供面板浏览，与 `recall` 不同：它按创建时间倒序、支持子串过滤，不做相关性排序。`total` 是过滤后的总数，可能大于返回条数。
 
 `forget` 的 `target` 是 UUID 时按 id 归档，否则按内容匹配（`ilike` 或 `word_similarity > 0.6`）。归档而非物理删除，`removed` 报告影响行数。
 
@@ -121,7 +132,7 @@ sudo install -o root -g root -m 644 memory-backup.cron /etc/cron.d/memory-backup
 MEMORY_SERVICE_URL=https://memory.newpm.ai
 MEMORY_SERVICE_TOKEN=<token>
 MEMORY_WORKSPACE=default
-MEMORY_USER=<你的稳定标识>
+MEMORY_USER=<your stable identity>
 MEMORY_AGENT_STUDIO=1
 ```
 
@@ -130,7 +141,7 @@ MEMORY_AGENT_STUDIO=1
 ## 验证
 
 ```bash
-# 服务自身
+# The service itself
 curl -s https://memory.newpm.ai/healthz
 curl -s -X POST https://memory.newpm.ai/health \
   -H 'content-type: application/json' \
@@ -138,7 +149,7 @@ curl -s -X POST https://memory.newpm.ai/health \
   -H 'x-workspace-id: default' \
   -H 'x-end-user-other-id: probe' -d '{}'
 
-# 真实 provider + 工具 + autosave
+# The real provider, tools, and autosave
 DSH_MEMORY_TEST_URL=https://memory.newpm.ai DSH_MEMORY_TEST_TOKEN=<token> \
   npx vitest run packages/memory/memory-remote/tests/e2e-service.spec.ts
 ```
@@ -149,7 +160,7 @@ DSH_MEMORY_TEST_URL=https://memory.newpm.ai DSH_MEMORY_TEST_TOKEN=<token> \
 sudo systemctl status memory-service
 sudo journalctl -u memory-service -n 50 --no-pager
 sudo -u postgres psql -p 5433 -d memory_svc
-sudo /usr/local/bin/memory-backup.sh          # 手动备份
+sudo /usr/local/bin/memory-backup.sh          # manual backup
 sudo ls -lh /var/backups/memory-service/
 ```
 
