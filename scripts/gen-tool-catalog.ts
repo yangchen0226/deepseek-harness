@@ -78,7 +78,7 @@ import TeamService from '@deepseek-ai/dsh-agent-team'
 import * as ToolTeam from '@deepseek-ai/dsh-tool-agent-team'
 import * as ToolTodo from '@deepseek-ai/dsh-tool-todo'
 import * as ToolMemory from '@deepseek-ai/dsh-tool-memory'
-import type { MemoryEngine } from '@deepseek-ai/dsh-memory'
+import { MemoryEngine } from '@deepseek-ai/dsh-memory'
 import type PluginManager from '@deepseek-ai/dsh-plugin-manager'
 import * as PluginManagerTools from '@deepseek-ai/dsh-plugin-manager/tools'
 import type PluginMarket from '@deepseek-ai/dsh-plugin-market'
@@ -707,14 +707,14 @@ const TOOL_PACKAGES: ToolPackage[] = [
     async mount(ctx) {
       // Schema harvest never executes a tool, so the seam is a stub: every
       // operation rejects, which is what a run that never calls one observes.
-      ctx.provide('memory', {
-        recall: () => Promise.reject(new Error('not scripted')),
-        remember: () => Promise.reject(new Error('not scripted')),
-        forget: () => Promise.reject(new Error('not scripted')),
-        profile: () => Promise.reject(new Error('not scripted')),
-        list: () => Promise.reject(new Error('not scripted')),
-        health: () => Promise.resolve({ reachable: false }),
-      } as MemoryEngine)
+      await ctx.plugin(class extends MemoryEngine {
+        recall() { return Promise.reject(new Error('not scripted')) }
+        remember() { return Promise.reject(new Error('not scripted')) }
+        forget() { return Promise.reject(new Error('not scripted')) }
+        profile() { return Promise.reject(new Error('not scripted')) }
+        list() { return Promise.reject(new Error('not scripted')) }
+        health() { return Promise.resolve({ reachable: false }) }
+      })
       await ctx.plugin(ToolMemory, { defaultMode: 'quick', enableForget: true })
     },
     note:

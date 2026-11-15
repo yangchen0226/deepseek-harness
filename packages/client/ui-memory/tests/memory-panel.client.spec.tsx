@@ -23,6 +23,7 @@ function idleActions(overrides: Partial<MemoryPanelActions> = {}): MemoryPanelAc
     list: () => Promise.resolve({ kind: 'ok', value: { items: [], total: 0, degraded: false } }),
     profile: () => Promise.resolve({ kind: 'ok', value: { sections: {}, degraded: false } }),
     forget: () => Promise.resolve({ kind: 'ok', value: { removed: 1 } }),
+    mute: () => Promise.resolve({ kind: 'ok', value: { muted: true } }),
     ...overrides,
   }
 }
@@ -47,6 +48,8 @@ function openView(label: string) {
 
 afterEach(cleanup)
 
+const EMPTY_STATE = { lastRecall: null, turnText: [], muted: false, mutedTurn: null }
+
 const ENTRY = { id: 'm-1', content: '项目统一使用 pnpm', kind: 'preference', createdAt: '2026-11-13T08:00:00.000Z', hits: 3 }
 
 describe('MemoryPanel', () => {
@@ -56,7 +59,7 @@ describe('MemoryPanel', () => {
   })
 
   it('shows the guidance when the session has no recall and no writes', () => {
-    renderPanel({ lastRecall: null, turnText: [] })
+    renderPanel(EMPTY_STATE)
     expect(screen.getByText(en.emptyDescription)).toBeDefined()
   })
 
@@ -71,6 +74,8 @@ describe('MemoryPanel', () => {
         trace: [{ stage: 'results_merged', count: 1 }],
       },
       turnText: [],
+      muted: false,
+      mutedTurn: null,
     })
     expect(screen.getByText(en.sectionRecall)).toBeDefined()
     expect(screen.getByText('package manager')).toBeDefined()
@@ -90,6 +95,8 @@ describe('MemoryPanel', () => {
         trace: [],
       },
       turnText: [{ role: 'assistant', content: 'understood, pnpm it is' }],
+      muted: false,
+      mutedTurn: null,
     })
     expect(screen.getByText(en.noItems)).toBeDefined()
     expect(screen.getByText(en.sectionWrites)).toBeDefined()
@@ -107,6 +114,8 @@ describe('MemoryPanel', () => {
         trace: [],
       },
       turnText: [],
+      muted: false,
+      mutedTurn: null,
     })
     expect(screen.getByText(en.degraded)).toBeDefined()
   })
