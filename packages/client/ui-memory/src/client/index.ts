@@ -38,8 +38,8 @@ export type { MemoryPanelInjected, MemoryPanelProps } from './MemoryPanel.tsx'
 export type { MemoryPanelActions, PanelOutcome } from './actions.ts'
 export type { MemoryHeaderActionProps, MemoryHeaderInjected } from './MemoryHeaderAction.tsx'
 
-/** Required services: the sidebar tab registry, slots, dictionaries, and the panel Remote. */
-export const inject = ['sidebarRightTabs', 'slots', 'locale', 'memoryPanel']
+/** Required services: the sidebar tab registry and navigator, slots, dictionaries, and the panel Remote. */
+export const inject = ['sidebarRightTabs', 'sidebarRight', 'slots', 'locale', 'memoryPanel']
 
 /** Stable identity of the tab type and its body registration. */
 const TAB_ID = 'memory-panel'
@@ -66,6 +66,7 @@ export function apply(ctx: ClientContext): void {
   // Read the service now: injected faces run on caller stacks whose dynamic
   // context has not declared it.
   const panel = ctx.memoryPanel
+  const sidebar = ctx.sidebarRight
   ctx.effect(() => ctx.slots.inject('sidebar.right.pane.tab', () => ctx.slots.register(
     {
       name: 'sidebar.right.pane.tab',
@@ -83,7 +84,7 @@ export function apply(ctx: ClientContext): void {
     order: 30,
     locale: NS,
     inject: (): MemoryHeaderInjected => ({
-      open: () => { ctx.sidebarRight.openTab('memory') },
+      open: () => { sidebar.openTab('memory') },
     }),
   }, MemoryHeaderAction)), 'ui-memory: header action')
   ctx.effect(() => ctx.slots.inject('conversation.input.dock', () => ctx.slots.register({

@@ -31,6 +31,9 @@ export type { MemoryAutosaveState, TurnMessage } from './types.ts'
 /** The durable message source this plugin injects under. */
 const SOURCE_KIND = 'memory-recall'
 
+/** The message source of text a human typed; every other user-role source is an injection. */
+const HUMAN_SOURCE_KIND = 'user'
+
 declare module '@deepseek-ai/dsh-llm' {
   interface MessageSourceMap {
     'memory-recall': { kind: 'memory-recall' } & ContextFormed
@@ -133,10 +136,13 @@ export async function apply(ctx: Context, config: Config): Promise<void> {
         }
       }
       if (event.type === 'user/message') {
+        // Only what a human typed is worth remembering. Context injections share
+        // the user role (runtime and time context, recalled memories) and carry
+        // workspace paths and clock readings that must never become memories.
         // `createMessage` clones with `structuredClone`, which drops an omitted
         // `source`; the declared type cannot express that, so read it widened.
         const source = event.data.source as { readonly kind?: string } | undefined
-        if (source?.kind === SOURCE_KIND) return state
+        if (source?.kind !== HUMAN_SOURCE_KIND) return state
         const text = textOf(event.data.content)
         return text === undefined
           ? state
@@ -238,7 +244,8 @@ async function writeTurn(ctx: Context, session: Session, turnText: readonly Turn
 }
 
 /**
- * The newest user-authored text among the messages entering a step.
+ * The newest human-typed text among the messages entering a step. Injected
+ * context shares the user role, so the source kind decides, not the role.
  * @param messages - the step's claimed messages.
  * @returns the text, or undefined when none qualifies.
  */
@@ -246,7 +253,7 @@ function lastUserText(messages: readonly { role: string; content: unknown; sourc
   for (let index = messages.length - 1; index >= 0; index--) {
     const message = messages[index]
     if (message === undefined || message.role !== 'user') continue
-    if (message.source?.kind === SOURCE_KIND) continue
+    if (message.source?.kind !== HUMAN_SOURCE_KIND) continue
     const text = textOf(message.content)
     if (text !== undefined) return text
   }

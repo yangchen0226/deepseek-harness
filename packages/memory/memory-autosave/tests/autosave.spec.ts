@@ -263,4 +263,25 @@ describe('dsh-memory-autosave', () => {
     const { values } = ctx.sessionProjections.snapshot(agent.session, ['memoryAutosave'])
     expect(values.memoryAutosave).toMatchObject({ muted: false, mutedTurn: null })
   })
+
+  it('never stores or recalls with injected context', async () => {
+    const { ctx, engine } = await setup()
+    const agent = agentWithSession(ctx, 'injected-context')
+    attach(ctx, agent)
+    userTurn(agent, 'please use pnpm from now on')
+    const injected = createUserMessage({
+      content: [{ type: 'text', text: '<system-reminder>Current working directory: /home/someone/project</system-reminder>' }],
+      source: { kind: 'runtime-context' } as never,
+    })
+    agent.session.append('user/message', injected, { surfaceOp: 'append' })
+    const human = createUserMessage({ content: [{ type: 'text', text: 'which package manager do I prefer' }], source: { kind: 'user' } })
+    await preStep(ctx, agent, [human, injected])
+    agent.session.append('turn/end', { turn: 1, reason: { kind: 'completed' } })
+
+    await new Promise((resolve) => { setImmediate(resolve) })
+
+    expect(engine.recalls[0]?.question).toBe('which package manager do I prefer')
+    const stored = engine.writes.flatMap(write => write.messages.map(message => message.content))
+    expect(stored).toEqual(['please use pnpm from now on'])
+  })
 })
