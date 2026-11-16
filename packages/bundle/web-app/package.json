@@ -201,7 +201,6 @@
     "@deepseek-ai/dsh-memory-autosave": "workspace:*",
     "@deepseek-ai/dsh-memory-agent": "workspace:*",
     "@deepseek-ai/dsh-memory-bear": "workspace:*",
-    "@deepseek-ai/dsh-memory-remote": "workspace:*",
     "@deepseek-ai/dsh-tool-memory": "workspace:*",
     "@deepseek-ai/dsh-tool-web": "workspace:*",
     "@deepseek-ai/dsh-tool-workflow": "workspace:*",

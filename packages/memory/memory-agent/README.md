@@ -28,8 +28,8 @@ English | [中文](README.zh.md)
 - name: '@deepseek-ai/dsh-memory-agent'
   config:
     provider:
-      baseUrl: http://127.0.0.1:8002
-      apiKey: mbr_...
+      baseUrl: https://cloud.memorybear.ai
+      apiKey: <MemoryBear API key>
       endUserOtherId: alice
     recallMode: quick
     presetOrder: 90
@@ -40,6 +40,7 @@ English | [中文](README.zh.md)
 | `provider.baseUrl` | required | MemoryBear origin copied into every created preset |
 | `provider.apiKey` | required | Secret credential; never model-visible and never logged |
 | `provider.endUserOtherId` | required | The memory identity the created agents share |
+| `provider.timeoutMs` | `8000` | Request deadline copied into every created preset |
 | `recallMode` | `quick` | Automatic recall breadth for created agents |
 | `presetOrder` | `90` | Roster position, keeping created agents below the shipped ones |
 

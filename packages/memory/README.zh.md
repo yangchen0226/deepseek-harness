@@ -25,8 +25,7 @@ memory 分组让会话能够访问超出一个会话日志的生命周期的知�
 | 包 | 职责 | ctx 键 |
 |---|---|---|
 | [`memory`](memory/README.zh.md) | 定义接缝：召回、浏览、写入受理、删除、画像、可达性与错误码 | `ctx.memory` |
-| [`memory-remote`](memory-remote/README.zh.md) | 面向部署好的 HTTP 记忆服务的 provider，负责身份头、传输与降级 | 注册到 `ctx.memory` |
-| [`memory-bear`](memory-bear/README.zh.md) | 对接既有 MemoryBear 部署的 provider | 注册到 `ctx.memory` |
+| [`memory-bear`](memory-bear/README.zh.md) | 对接 MemoryBear 的 provider，可用托管服务 `cloud.memorybear.ai` 或自建部署；负责 API Key、终端用户绑定与降级 | 注册到 `ctx.memory` |
 | [`tool-memory`](tool-memory/README.zh.md) | 模型可见的 `memory_recall`、`memory_write` 与按需 `memory_forget` | 注册到 `ctx.tools` |
 | [`memory-autosave`](memory-autosave/README.zh.md) | 回合前召回与回合后写入，以及客户端读取的 `memoryAutosave` 投影 | 注册到 `ctx.agents` 钩子 |
 | [`memory-agent`](memory-agent/README.zh.md) | `memory_agent_create`：组合并注册记忆型 agent 预设 | 注册到 `ctx.tools` |
@@ -36,11 +35,10 @@ memory 分组让会话能够访问超出一个会话日志的生命周期的知�
 <a id="related-documentation"></a>
 ## 相关文档
 
-- [记忆服务部署](../../deploy/memory-service/README.zh.md) — PostgreSQL 表结构、五个服务路由与客户端环境变量。
 - [Session 投影](../../docs/subsystems/session.zh.md) — `memoryAutosave` 单元与它遵循的"模型可见即已记录"规则。
 
 
-内置 provider 只暴露召回与写入。MemoryBear 把删除、反思、工作记忆、情景与感知读取放在 JWT 管理端，因此 `memory_forget` 默认不注册、画像读取返回不支持。不要为 provider 拒绝的操作注册工具或展示控件。
+MemoryBear 的 API Key 接口提供召回、写入、已存记忆时间线与用户摘要缓存，但不提供删除：删除、反思与工作记忆都在 JWT 管理端。因此随包预设不注册 `memory_forget`，面板把删除显示为不支持。不要为 provider 拒绝的操作注册工具或展示控件。
 
 <a id="dev-note"></a>
 ## 开发备注

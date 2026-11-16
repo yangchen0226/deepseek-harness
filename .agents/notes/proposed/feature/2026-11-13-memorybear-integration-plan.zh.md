@@ -8,25 +8,23 @@ Status: proposed
 
 ## Problem
 
-**架构调整（2026-11-13 晚）**：记忆服务端改为自建、部署在云端，数据库用本机 PostgreSQL 17。原因是 MemoryBear 需要 Neo4j + ES + Celery 一整套进程，部署成本过高；Supabase Edge Function 路径因需要云端托管数据库而放弃。原 `memory-bear` provider 保留，默认路径改为 `memory-remote` + [`deploy/memory-service`](../../../../deploy/memory-service/README.zh.md)。
+**架构（2026-11-16）**：所有记忆操作都依赖托管的 MemoryBear 服务 `https://cloud.memorybear.ai`，由 `memory-bear` provider 经 MemoryBear 的 API Key 接口（`/v1`）访问。过渡期的自建 HTTP 服务（本机 PostgreSQL）及其 `memory-remote` provider 已移除：两个语义不同的后端会让随包默认值含糊不清，而第二个后端没有任何使用方。仍可把 `MEMORYBEAR_BASE_URL` 指向自建的 MemoryBear。
 
-服务已在 124.221.105.121 上线：PG 17 集群 `17/main`（5433，loopback）、库 `memory_svc`、systemd 单元 `memory-service`（127.0.0.1:7180）、nginx 站点、Let's Encrypt 证书（`https://memory.newpm.ai`，到期 2027-02-11，自动续期）、每日备份。真实 provider + tool-memory + autosave 的端到端测试经 HTTPS 通过。
+`memory` 预设只在 `MEMORYBEAR_API_KEY` 指向一个带 `memory` scope 的 key 时启用记忆行，该 key 在 MemoryBear 控制台创建。托管的 `/v1` 接口提供召回、写入、终端用户绑定、已存记忆时间线（`/v1/memory-display/written`）与用户摘要缓存（`/v1/memory/analytics/user_summary`）；它没有删除接口，所以预设不注册 `memory_forget`。
 
-一次基于 gpt-6-astra 的真实 Web 会话跑通了整条链路：选择预设、回合前召回、回合后写入、模型主动调用 `memory_write`、面板三视图、输入区开关，以及服务重启后重新打开会话。这次运行发现了五个单元测试都没覆盖到的缺陷，记录在[打包与组合约束](#packaging-constraints-learned-the-hard-way)。
+一次基于 gpt-6-astra 的真实 Web 会话跑通了整条链路：选择预设、回合前召回、回合后写入、模型主动调用 `memory_write`、面板三视图、输入区开关，以及服务重启后重新打开会话。这次运行发现了五个单元测试都没覆盖到的缺陷，记录在[打包与组合约束](#packaging-constraints-learned-the-hard-way)。那次运行用的是过渡期的自建服务；托管 MemoryBear 路径目前通过其 `/v1` 路由的 stub 以及对 `cloud.memorybear.ai` 的无凭据实测探测验证，端到端测试还在等 MemoryBear API Key。
 
-跨境的 TLS 握手要 0.4–1.3s，provider 默认 1500ms 超时会把健康服务判成间歇不可用，因此 preset 把 `timeoutMs` 设为 4000ms，并留 `MEMORY_TIMEOUT_MS` 覆盖口子。
+托管服务的读路径在上游执行检索，还要跨境往返，provider 默认 800ms 超时会把健康的召回判成降级，因此 preset 把 `timeoutMs` 设为 8000ms，并留 `MEMORY_TIMEOUT_MS` 覆盖口子。
 
 | 包 / 目录 | 内容 | 测试 |
 |---|---|---|
 | `packages/memory/memory` | Service Definition：`ctx.memory`、请求/结果类型、`MemoryError` 错误码 | 3 |
-| `packages/memory/memory-remote` | **默认 provider**：六路由 HTTP 客户端、身份头、降级 | 7 + 1 e2e |
-| `packages/memory/memory-bear` | MemoryBear provider（保留，用于已有部署） | 6 |
+| `packages/memory/memory-bear` | **默认 provider**：托管 MemoryBear——召回、写入、浏览、画像、降级 | 9 + 1 e2e |
 | `packages/memory/tool-memory` | `memory_recall` / `memory_write` / `memory_forget` | 5 |
 | `packages/memory/memory-autosave` | `agent/pre-step` 召回注入 + `turn/end` 批量写入 + `memoryAutosave` 投影 | 5 |
 | `packages/memory/memory-agent` | `memory_agent_create`：组合并注册记忆型 agent 预设 | 3 |
 | `packages/client/ui-memory` | 会话右侧记忆页签：召回 / 记忆库 / 画像三视图 + 头部入口 + 输入区开关 | 20 |
 | `packages/api/memory-controller` | 面板 Remote 端点：`list` / `profile` / `forget` / `health` / `mute`，按会话解析引擎 | 9 |
-| `deploy/memory-service/` | 记忆服务端：Node 服务、schema（含 `memory_list`）、systemd 单元、nginx、备份 | e2e 通过 |
 | `packages/bundle/web-app/presets/memory.patch.yml` | `memory` 预设，`MEMORY_SERVICE_URL` 未设置时记忆行禁用 | — |
 
 未实现（明确延后）：

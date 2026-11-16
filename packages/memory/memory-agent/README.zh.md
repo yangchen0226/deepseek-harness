@@ -28,8 +28,8 @@ kind: "package-reference"
 - name: '@deepseek-ai/dsh-memory-agent'
   config:
     provider:
-      baseUrl: http://127.0.0.1:8002
-      apiKey: mbr_...
+      baseUrl: https://cloud.memorybear.ai
+      apiKey: <MemoryBear API key>
       endUserOtherId: alice
     recallMode: quick
     presetOrder: 90
@@ -40,6 +40,7 @@ kind: "package-reference"
 | `provider.baseUrl` | 必填 | 复制到每个新建预设里的记忆服务地址 |
 | `provider.apiKey` | 必填 | 密钥凭据；对模型不可见，也不写日志 |
 | `provider.endUserOtherId` | 必填 | 新建 agent 共享的记忆身份 |
+| `provider.timeoutMs` | `8000` | 复制到每个新建预设里的请求超时 |
 | `recallMode` | `quick` | 新建 agent 的自动召回宽度 |
 | `presetOrder` | `90` | 名册位置，让新建 agent 排在随包预设之后 |
 

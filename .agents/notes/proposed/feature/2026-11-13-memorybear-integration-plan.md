@@ -8,25 +8,23 @@ English | [中文](2026-11-13-memorybear-integration-plan.zh.md)
 
 ## Problem
 
-**Architecture change (2026-11-13, evening).** The memory service moved to a self-hosted deployment on a cloud host, backed by local PostgreSQL 17. MemoryBear needs a Neo4j + ES + Celery stack, which is too expensive to deploy; the Supabase Edge Function path was abandoned because it depended on a hosted cloud database. The `memory-bear` provider stays, and the default path is `memory-remote` plus [`deploy/memory-service`](../../../../deploy/memory-service/README.md).
+**Architecture (2026-11-16).** Every memory operation depends on the hosted MemoryBear service at `https://cloud.memorybear.ai`, reached by the `memory-bear` provider over MemoryBear's API-key surface (`/v1`). An interim self-hosted HTTP service on local PostgreSQL and its `memory-remote` provider were removed: two backends with different semantics would leave the shipped default ambiguous, and nothing consumed the second. A self-hosted MemoryBear remains possible by pointing `MEMORYBEAR_BASE_URL` at it.
 
-The service is live on 124.221.105.121: PG 17 cluster `17/main` (5433, loopback), database `memory_svc`, systemd unit `memory-service` (127.0.0.1:7180), an nginx site, a Let's Encrypt certificate (`https://memory.newpm.ai`, expires 2027-02-11, auto-renewing), and a nightly backup. The real provider, tool-memory, and autosave pass an end-to-end test over HTTPS.
+The `memory` preset enables its memory rows only when `MEMORYBEAR_API_KEY` names a key with the `memory` scope, created in the MemoryBear console. The hosted `/v1` surface serves recall, writes, end-user binding, the stored-memory timeline (`/v1/memory-display/written`), and the cached user summary (`/v1/memory/analytics/user_summary`); it has no removal route, so the preset does not register `memory_forget`.
 
-A real web session on gpt-6-astra exercised the whole path — preset selection, pre-step recall, turn-end write, a model `memory_write`, the three panel views, the dock switch, and reopening the session after a restart. That run found five defects no unit suite reached; [packaging and composition constraints](#packaging-constraints-learned-the-hard-way) records them.
+A real web session on gpt-6-astra exercised the whole path — preset selection, pre-step recall, turn-end write, a model `memory_write`, the three panel views, the dock switch, and reopening the session after a restart. That run found five defects no unit suite reached; [packaging and composition constraints](#packaging-constraints-learned-the-hard-way) records them. That run used the interim self-hosted service; the hosted MemoryBear path is verified against a stub of its `/v1` routes and a live unauthenticated probe of `cloud.memorybear.ai`, and its end-to-end test waits on a MemoryBear API key.
 
-A cross-border TLS handshake costs 0.4–1.3 s, so the provider's 1500 ms default timeout would turn a healthy service into an intermittent outage; the preset sets `timeoutMs` to 4000 ms and leaves `MEMORY_TIMEOUT_MS` as an override.
+The hosted read path runs retrieval upstream across a cross-border link, so the provider's 800 ms default would degrade healthy recalls; the preset sets `timeoutMs` to 8000 ms and leaves `MEMORY_TIMEOUT_MS` as an override.
 
 | Package / directory | Contents | Tests |
 |---|---|---|
 | `packages/memory/memory` | Service Definition: `ctx.memory`, request/result types, `MemoryError` codes | 3 |
-| `packages/memory/memory-remote` | **Default provider**: six-route HTTP client, identity headers, degradation | 7 + 1 e2e |
-| `packages/memory/memory-bear` | MemoryBear provider (kept for existing deployments) | 6 |
+| `packages/memory/memory-bear` | **Default provider**: hosted MemoryBear — recall, write, browse, profile, degradation | 9 + 1 e2e |
 | `packages/memory/tool-memory` | `memory_recall` / `memory_write` / `memory_forget` | 5 |
 | `packages/memory/memory-autosave` | `agent/pre-step` recall injection + `turn/end` batch write + the `memoryAutosave` projection | 5 |
 | `packages/memory/memory-agent` | `memory_agent_create`: composes and registers a memory-enabled agent preset | 3 |
 | `packages/client/ui-memory` | Right-sidebar memory tab: recall / library / profile views, header entry, dock switch | 20 |
 | `packages/api/memory-controller` | Panel Remote endpoints: `list` / `profile` / `forget` / `health` / `mute`, resolving the engine per Session | 9 |
-| `deploy/memory-service/` | Memory service: Node process, schema (with `memory_list`), systemd unit, nginx, backup | e2e passes |
 | `packages/bundle/web-app/presets/memory.patch.yml` | The `memory` preset; memory rows stay disabled while `MEMORY_SERVICE_URL` is unset | — |
 
 Not implemented (explicitly deferred):
@@ -176,7 +174,7 @@ A tab registration needs the same `id` twice: `ctx.sidebarRightTabs.register({ i
 
 **The preset is the single source of truth.** `PresetDefinition = { id, name, description, order, plugins: rows }`. Two presets ship:
 
-- `memory`: `memory-remote` + `memory-autosave` + `tool-memory` + persona (recall generously, write sparingly).
+- `memory`: `memory-bear` + `memory-autosave` + `tool-memory` + persona (recall generously, write sparingly).
 - An agent-studio variant that also mounts `memory-agent`, allowing creation of further agents from a conversation.
 
 **In-session creation.** The `memory_agent_create` tool (mounted only by the studio preset) takes the name, the role, optional skills, and the memory mode:
@@ -208,7 +206,7 @@ It produces a registered preset beside the shipped ones and returns the agent's 
 **P0 (reviewable and mergeable on its own)**
 
 1. `packages/memory/memory`: types plus contract tests.
-2. `packages/memory/memory-remote`: the HTTP provider, with timeouts and degradation, tested against a local stub server.
+2. `packages/memory/memory-bear`: the MemoryBear provider, with timeouts and degradation, tested against a local stub server.
 3. `packages/memory/tool-memory`: the tools plus `SessionEventMap` declarations.
 4. `packages/memory/memory-autosave`: pre-step recall, turn-end write, the degraded path.
 

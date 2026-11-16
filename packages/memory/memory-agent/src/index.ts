@@ -44,12 +44,16 @@ export const inject = ['tools', 'agentPresets']
 
 /** Deployment configuration; the provider block is never model-visible. */
 export interface Config {
-  /** Memory service settings copied into every created preset. */
+  /** MemoryBear settings copied into every created preset. */
   provider: {
-    serviceUrl: string
-    token: string
-    workspaceId?: string
+    /** MemoryBear origin, e.g. `https://cloud.memorybear.ai`. */
+    baseUrl: string
+    /** API key carrying the `memory` scope; its workspace is the memory scope. */
+    apiKey: string
+    /** The memory identity every created agent shares. */
     endUserOtherId: string
+    /** Upstream request deadline in milliseconds. */
+    timeoutMs?: number
   }
   /** Recall breadth the created preset uses automatically. */
   recallMode?: 'deep' | 'normal' | 'quick' | 'express' | 'meta'
@@ -59,10 +63,10 @@ export interface Config {
 
 export const Config: z<Config> = z.object({
   provider: z.object({
-    serviceUrl: z.string().required(),
-    token: z.string().role('secret').required(),
-    workspaceId: z.string().default('default'),
+    baseUrl: z.string().required(),
+    apiKey: z.string().role('secret').required(),
     endUserOtherId: z.string().required(),
+    timeoutMs: z.number().default(8000),
   }).required(),
   recallMode: z.union(['deep', 'normal', 'quick', 'express', 'meta']).default('quick'),
   presetOrder: z.number().default(90),
@@ -155,13 +159,13 @@ export function apply(ctx: Context, config: Config): void {
             isolate: { memory: true },
             config: [
               {
-                id: 'memory-remote',
-                name: '@deepseek-ai/dsh-memory-remote',
+                id: 'memory-bear',
+                name: '@deepseek-ai/dsh-memory-bear',
                 config: {
-                  serviceUrl: config.provider.serviceUrl,
-                  token: config.provider.token,
-                  workspaceId: config.provider.workspaceId ?? 'default',
+                  baseUrl: config.provider.baseUrl,
+                  apiKey: config.provider.apiKey,
                   endUserOtherId: config.provider.endUserOtherId,
+                  timeoutMs: config.provider.timeoutMs ?? 8000,
                 },
               },
               {

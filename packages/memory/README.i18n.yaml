@@ -3,7 +3,7 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/memory/README.md
 /:
-  en: 3215615dca2c479b
+  en: 60558fcfd5b9229b
   zh: ee8ace0e17840d4c
 /memory-long-term-memory-capability-family:
   en: 3a0c8f3fa947d8eb
@@ -15,11 +15,11 @@
   en: 1eb35b015a6c423f
   zh: cf6fb5bae56b2e73
 /memory-long-term-memory-capability-family/packages:
-  en: 4829647221c83ab4
-  zh: 79490e578e90a355
+  en: 3ce769f88ff00f62
+  zh: 3b1aa6ac62745e45
 /memory-long-term-memory-capability-family/related-documentation:
-  en: aff93404a4b17762
-  zh: 68c08375be9c3c5e
+  en: b609835aa571e39e
+  zh: 1f73286daf5c6567
 /memory-long-term-memory-capability-family/dev-note:
-  en: b1d9fb4c7c7334df
+  en: f350e38644a8686e
   zh: 96d197091aeb5762

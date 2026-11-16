@@ -1,10 +1,9 @@
-# Agent preset memory: durable memory over the harness memory service.
+# Agent preset memory: durable memory over the hosted MemoryBear service.
 #
-# The memory rows stay disabled until MEMORY_SERVICE_URL names a deployed service,
-# because the provider has no usable default endpoint and a memory-less preset
-# must remain startable. Set MEMORY_SERVICE_URL to the deployed service root
-# (deploy/memory-service) plus MEMORY_SERVICE_TOKEN, then select this preset in a
-# session.
+# The memory rows stay disabled until MEMORYBEAR_API_KEY names a MemoryBear API
+# key with the `memory` scope, so a memory-less preset remains startable. The
+# key comes from the MemoryBear console (https://cloud.memorybear.ai);
+# MEMORYBEAR_BASE_URL overrides the hosted origin for a self-hosted deployment.
 - insert:
     - id: preset-memory
       name: '@deepseek-ai/dsh-agent-preset'
@@ -22,41 +21,40 @@
             isolate:
               memory: true
             config:
-              - id: memory-remote
-                name: '@deepseek-ai/dsh-memory-remote'
-                disabled: !!js "!process.env.MEMORY_SERVICE_URL"
+              - id: memory-bear
+                name: '@deepseek-ai/dsh-memory-bear'
+                disabled: !!js "!process.env.MEMORYBEAR_API_KEY"
                 config:
-                  serviceUrl: !!js process.env.MEMORY_SERVICE_URL ?? ''
-                  token: !!js process.env.MEMORY_SERVICE_TOKEN ?? ''
-                  workspaceId: !!js process.env.MEMORY_WORKSPACE ?? 'default'
+                  baseUrl: !!js process.env.MEMORYBEAR_BASE_URL ?? 'https://cloud.memorybear.ai'
+                  apiKey: !!js process.env.MEMORYBEAR_API_KEY ?? ''
                   endUserOtherId: !!js process.env.MEMORY_USER ?? 'local'
-                  # A cross-border TLS handshake to a remote service costs 0.4-1.3 s
-                  # before the first byte, so the provider's 1500 ms default turns a
-                  # reachable service into an intermittent outage. The service itself
-                  # answers in single-digit milliseconds.
-                  timeoutMs: !!js Number(process.env.MEMORY_TIMEOUT_MS ?? 4000)
+                  # The hosted read path runs retrieval upstream, and a
+                  # cross-border round trip adds up to two seconds before the
+                  # first byte; the provider's 800 ms default would degrade
+                  # healthy recalls.
+                  timeoutMs: !!js Number(process.env.MEMORY_TIMEOUT_MS ?? 8000)
               - id: tool-memory
                 name: '@deepseek-ai/dsh-tool-memory'
-                disabled: !!js "!process.env.MEMORY_SERVICE_URL"
+                disabled: !!js "!process.env.MEMORYBEAR_API_KEY"
                 config:
                   defaultMode: quick
-                  enableForget: true
+                  # The MemoryBear service surface has no removal route.
+                  enableForget: false
                   enableProfile: true
               - id: memory-autosave
                 name: '@deepseek-ai/dsh-memory-autosave'
-                disabled: !!js "!process.env.MEMORY_SERVICE_URL"
+                disabled: !!js "!process.env.MEMORYBEAR_API_KEY"
                 config:
                   recallMode: quick
                   recallOnTurnStart: true
                   writeOnTurnEnd: true
           - id: memory-agent
             name: '@deepseek-ai/dsh-memory-agent'
-            disabled: !!js "!process.env.MEMORY_SERVICE_URL || !process.env.MEMORY_AGENT_STUDIO"
+            disabled: !!js "!process.env.MEMORYBEAR_API_KEY || !process.env.MEMORY_AGENT_STUDIO"
             config:
               provider:
-                serviceUrl: !!js process.env.MEMORY_SERVICE_URL ?? ''
-                token: !!js process.env.MEMORY_SERVICE_TOKEN ?? ''
-                workspaceId: !!js process.env.MEMORY_WORKSPACE ?? 'default'
+                baseUrl: !!js process.env.MEMORYBEAR_BASE_URL ?? 'https://cloud.memorybear.ai'
+                apiKey: !!js process.env.MEMORYBEAR_API_KEY ?? ''
                 endUserOtherId: !!js process.env.MEMORY_USER ?? 'local'
               recallMode: quick
           - id: persona

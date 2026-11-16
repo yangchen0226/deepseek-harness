@@ -3,32 +3,32 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/memory/memory-bear/README.md
 /:
-  en: 75255fb0a66e3c53
-  zh: 725eebd0f7f857e6
+  en: d9f3301bb35b1e2b
+  zh: e568cb7083cf7e45
 /deepseek-ai-dsh-memory-bear:
   en: ac51d67ab7653b34
   zh: aa93249690c7b721
 /deepseek-ai-dsh-memory-bear/summary:
-  en: 992781f607ef15dd
-  zh: b778f0034d03225c
+  en: 41001ee0cf117a04
+  zh: 5e0aa8acc89f7f19
 /deepseek-ai-dsh-memory-bear/table-of-contents:
   en: 73f2687f0589969a
   zh: 9d83fe5770f80fed
 /deepseek-ai-dsh-memory-bear/use-this-package:
-  en: 5185eb7d2d520e0e
-  zh: 50a550656c8ed1fd
+  en: c960830780d9be92
+  zh: 4cc8d5f6c5cb38fa
 /deepseek-ai-dsh-memory-bear/understand-the-implementation:
-  en: ed0dd2ec18dbadd7
-  zh: 81f50e72a405bc87
+  en: fbd1621c41153e7f
+  zh: a701a33b407904fc
 /deepseek-ai-dsh-memory-bear/model-experience:
-  en: de6156af5bb64551
-  zh: 3cd7abd0bfb8754f
+  en: f110c3878c335bfc
+  zh: 7b29391e39f541c1
 /deepseek-ai-dsh-memory-bear/model-experience/kv-cache-effect:
   en: 47f982e326fe77fd
   zh: 9dcda8465dec361c
 /deepseek-ai-dsh-memory-bear/known-limitations-and-deferred-work:
-  en: 220dcd6c4e02e8d8
-  zh: 93cc4e09bc0d71f8
+  en: 34f2aa12cbdd4ec7
+  zh: 93beb9d9c65aeb30
 /deepseek-ai-dsh-memory-bear/known-limitations-and-deferred-work/dev-note:
   en: 669b6dfada5ac068
-  zh: 0b88e8f174b671b8
+  zh: e9c328a1b995c0cd

@@ -30,7 +30,7 @@ async function startStub(): Promise<{
       const body = raw === '' ? {} : JSON.parse(raw) as Record<string, unknown>
       const path = request.url ?? ''
       requests.push({ path, body, authorization: request.headers.authorization })
-      const route = routes.get(path)
+      const route = routes.get(path.split('?')[0] ?? path)
       if (route === undefined) {
         response.writeHead(404).end()
         return
@@ -155,5 +155,73 @@ describe('dsh-memory-bear', () => {
     stub.routes.set('/v1/end_user/create', () => ({ body: envelope({ id: 'eu-1' }) }))
     const ctx = await mount(stub.baseUrl)
     expect(await ctx.memory.health()).toEqual({ reachable: true, endUserId: 'eu-1' })
+  })
+
+  it('lists stored memories from the display timeline', async () => {
+    const stub = await startStub()
+    closeStub = stub.close
+    stub.routes.set('/v1/end_user/create', () => ({ body: envelope({ id: 'eu-1' }) }))
+    stub.routes.set('/v1/memory-display/written', () => ({
+      body: envelope({
+        page: { page: 1, pagesize: 20, total: 37, hasnext: true },
+        items: [
+          { id: 'r-1', memory_id: 'm-1', memory_type: 'semantic', name: 'pnpm', content: '项目统一使用 pnpm', occurred_at: Date.UTC(2026, 10, 16) },
+          { id: 'r-2', memory_type: 'episodic', name: '部署', content: '部署走 systemd' },
+        ],
+      }),
+    }))
+    const ctx = await mount(stub.baseUrl)
+
+    const all = await ctx.memory.list({ limit: 20 })
+    expect(all.total).toBe(37)
+    expect(all.items).toEqual([
+      { id: 'm-1', content: '项目统一使用 pnpm', kind: 'semantic', createdAt: '2026-11-16T00:00:00.000Z' },
+      { id: 'r-2', content: '部署走 systemd', kind: 'episodic' },
+    ])
+    const listed = stub.requests.find(request => request.path.startsWith('/v1/memory-display/written'))!
+    expect(new URL(listed.path, stub.baseUrl).searchParams.get('end_user_id')).toBe('eu-1')
+    expect(new URL(listed.path, stub.baseUrl).searchParams.get('pagesize')).toBe('20')
+
+    // The route has no text filter, so a query narrows the fetched page only.
+    const narrowed = await ctx.memory.list({ query: 'systemd' })
+    expect(narrowed).toEqual({ items: [{ id: 'r-2', content: '部署走 systemd', kind: 'episodic' }], total: 1 })
+  })
+
+  it('maps the cached user summary into profile sections', async () => {
+    const stub = await startStub()
+    closeStub = stub.close
+    stub.routes.set('/v1/end_user/create', () => ({ body: envelope({ id: 'eu-1' }) }))
+    stub.routes.set('/v1/memory/analytics/user_summary', () => ({
+      body: envelope({
+        one_sentence: '偏好 pnpm 的前端工程师',
+        user_summary: null,
+        personality: '做事先写测试',
+        core_values: '',
+        tags: ['pnpm', { name: 'CSS Modules' }],
+        is_cached: true,
+      }),
+    }))
+    const ctx = await mount(stub.baseUrl)
+    expect(await ctx.memory.profile({})).toEqual({
+      sections: {
+        basic: ['偏好 pnpm 的前端工程师'],
+        interests: ['pnpm', 'CSS Modules'],
+        habits: ['做事先写测试'],
+        emotions: [],
+      },
+    })
+    expect(await ctx.memory.profile({ sections: ['interests'] })).toEqual({ sections: { interests: ['pnpm', 'CSS Modules'] } })
+  })
+
+  it('treats an unknown API key as an unavailable backend', async () => {
+    const stub = await startStub()
+    closeStub = stub.close
+    // The hosted service answers a missing key with HTTP 400 and code 3007.
+    const unknownKey = () => ({ status: 400, body: { code: 3007, msg: 'API Key 不存在', data: {}, error: 'API Key 不存在', time: 0 } })
+    stub.routes.set('/v1/end_user/create', unknownKey)
+    const ctx = await mount(stub.baseUrl)
+    expect((await ctx.memory.recall({ question: 'package manager', mode: 'quick', turn: 1 })).degraded).toBe(true)
+    await expect(ctx.memory.list({})).rejects.toMatchObject({ code: 'MEMORY_UNAVAILABLE' })
+    expect(await ctx.memory.health()).toEqual({ reachable: false })
   })
 })

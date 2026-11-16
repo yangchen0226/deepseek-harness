@@ -100,7 +100,6 @@ const SENTENCE_MODEL_EXPERIENCE: Readonly<Record<string, SentenceContract>> = {
   'packages/api/memory-controller': { kind: 'none', reason: 'The panel Remote serves a human browsing memories; its reads append no Session event and none of its values enter a model request.' },
   'packages/memory/memory': { kind: 'none', reason: 'The seam only declares the engine interface and its wire types; every model-facing use belongs to the consumers that call it.' },
   'packages/memory/memory-bear': { kind: 'indirect', reason: 'The provider transports recall and write requests for its consumers; dsh-memory-autosave and dsh-tool-memory own what the model sees.' },
-  'packages/memory/memory-remote': { kind: 'indirect', reason: 'The provider transports recall and write requests over HTTP; dsh-memory-autosave and dsh-tool-memory own what the model sees.' },
   'packages/shell/shell': { kind: 'indirect', reason: 'The service interface delegates all model rendering to dsh-tool-bash.' },
   'packages/shell/shell-env': { kind: 'indirect', reason: 'The env service exposes managed DSH_* facts through the shell tools (dsh-tool-bash/dsh-tool-pwsh); it registers no prompt or schema of its own.' },
   'packages/shell/bash-local': { kind: 'indirect', reason: 'The executor backend delegates model rendering to dsh-tool-bash.' },

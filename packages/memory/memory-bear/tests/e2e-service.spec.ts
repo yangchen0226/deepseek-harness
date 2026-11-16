@@ -1,7 +1,8 @@
 /**
- * End-to-end proof of the memory seam against a running HTTP service: the real
- * provider, the real tools, and the real autosave consumer on one context, with
- * the service URL supplied by the environment.
+ * End-to-end proof of the memory seam against a live MemoryBear service: the
+ * real provider, the real tools, and the real autosave consumer on one context.
+ * It runs only when DSH_MEMORYBEAR_TEST_API_KEY names a key with the `memory`
+ * scope; DSH_MEMORYBEAR_TEST_BASE_URL overrides the hosted origin.
  */
 import { describe, expect, it } from 'vitest'
 import { Context } from '@deepseek-ai/cordis'
@@ -14,21 +15,36 @@ import AgentRegistry from '@deepseek-ai/dsh-agent'
 import SystemPrompt from '@deepseek-ai/dsh-system-prompt'
 import ToolRuntime from '@deepseek-ai/dsh-tools'
 import * as NativeToolExecutor from '@deepseek-ai/dsh-tool-executor-native'
-import * as remote from '@deepseek-ai/dsh-memory-remote'
+import * as bear from '../src/index.ts'
 import * as toolMemory from '@deepseek-ai/dsh-tool-memory'
 import * as autosave from '@deepseek-ai/dsh-memory-autosave'
 
-const URL = process.env['DSH_MEMORY_TEST_URL']
-const TOKEN = process.env['DSH_MEMORY_TEST_TOKEN'] ?? 'demo-token'
-// A remote deployment pays a cross-border TLS handshake before the first byte,
-// which routinely exceeds the provider's 1500 ms default. The service itself
-// answers in single-digit milliseconds, so the budget is about the link.
-const TIMEOUT_MS = Number(process.env['DSH_MEMORY_TEST_TIMEOUT_MS'] ?? 8000)
-// This case makes several round trips — health, write, recall, and the pre-step
-// recall — so the test deadline has to clear them all, not one.
-const TEST_TIMEOUT_MS = TIMEOUT_MS * 4
+const API_KEY = process.env['DSH_MEMORYBEAR_TEST_API_KEY']
+const BASE_URL = process.env['DSH_MEMORYBEAR_TEST_BASE_URL'] ?? 'https://cloud.memorybear.ai'
+// The hosted read path runs retrieval upstream across a cross-border link.
+const TIMEOUT_MS = Number(process.env['DSH_MEMORY_TEST_TIMEOUT_MS'] ?? 15000)
+// MemoryBear stores a write asynchronously, so recall polls until extraction
+// has made the fact searchable.
+const INDEX_DEADLINE_MS = 120_000
+const TEST_TIMEOUT_MS = INDEX_DEADLINE_MS + TIMEOUT_MS * 4
 
-describe.skipIf(URL === undefined)('memory service end to end', () => {
+/**
+ * Recall until a predicate holds or the indexing deadline passes.
+ * @param recall - one recall attempt.
+ * @param done - whether a result is the one awaited.
+ * @returns the last result.
+ */
+async function recallUntil<T>(recall: () => Promise<T>, done: (result: T) => boolean): Promise<T> {
+  const deadline = Date.now() + INDEX_DEADLINE_MS
+  let result = await recall()
+  while (!done(result) && Date.now() < deadline) {
+    await new Promise(resolve => setTimeout(resolve, 5000))
+    result = await recall()
+  }
+  return result
+}
+
+describe.skipIf(API_KEY === undefined)('MemoryBear end to end', () => {
   it('writes a turn, then recalls it in a later turn', { timeout: TEST_TIMEOUT_MS }, async () => {
     const ctx = new Context()
     await ctx.plugin(SystemPrompt)
@@ -37,14 +53,13 @@ describe.skipIf(URL === undefined)('memory service end to end', () => {
     await ctx.plugin(SessionProjectionRegistry)
     await ctx.plugin(SessionStore)
     await ctx.plugin(AgentRegistry)
-    await ctx.plugin(remote, {
-      serviceUrl: URL!,
-      token: TOKEN,
-      workspaceId: 'default',
-      endUserOtherId: 'e2e-user',
+    await ctx.plugin(bear, {
+      baseUrl: BASE_URL,
+      apiKey: API_KEY!,
+      endUserOtherId: 'dsh-e2e-user',
       timeoutMs: TIMEOUT_MS,
     })
-    await ctx.plugin(toolMemory, { defaultMode: 'quick', enableForget: true })
+    await ctx.plugin(toolMemory, { defaultMode: 'quick', enableProfile: true })
     await ctx.plugin(autosave, { recallMode: 'quick', recallOnTurnStart: true, writeOnTurnEnd: true })
 
     const health = await ctx.memory.health()
@@ -63,9 +78,21 @@ describe.skipIf(URL === undefined)('memory service end to end', () => {
     })
     expect(written.queued).toBe(true)
 
-    const recalled = await ctx.memory.recall({ question: `包管理器 ${marker}`, mode: 'quick', turn: 2 })
+    // MemoryBear rewrites stored statements during extraction, so the marker,
+    // not the exact sentence, identifies this run's fact.
+    const carriesMarker = (contents: readonly string[]) => contents.some(content => content.includes(marker))
+    const recalled = await recallUntil(
+      () => ctx.memory.recall({ question: `包管理器 ${marker}`, mode: 'quick', turn: 2 }),
+      result => carriesMarker(result.items.map(item => item.content)),
+    )
     expect(recalled.degraded).toBe(false)
-    expect(recalled.items.map(item => item.content)).toContain(fact)
+    expect(carriesMarker(recalled.items.map(item => item.content))).toBe(true)
+
+    const listed = await recallUntil(
+      () => ctx.memory.list({ limit: 50 }),
+      result => carriesMarker(result.items.map(item => item.content)),
+    )
+    expect(carriesMarker(listed.items.map(item => item.content))).toBe(true)
 
     const agent = ctx.sessions.create(SessionId(`e2e-agent-${marker}`))
     const handle: Agent = {
@@ -104,6 +131,6 @@ describe.skipIf(URL === undefined)('memory service end to end', () => {
     const injected = decision.messages.find(message => message.source.kind === 'memory-recall')
     expect(injected).toBeDefined()
     const text = injected!.content.find(block => block.type === 'text')?.text ?? ''
-    expect(text).toContain('pnpm')
+    expect(text).toContain(marker)
   })
 })

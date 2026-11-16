@@ -9,7 +9,7 @@
 import { readFileSync } from 'node:fs'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { Context } from '@deepseek-ai/cordis'
-import * as memoryRemote from '@deepseek-ai/dsh-memory-remote'
+import * as memoryBear from '@deepseek-ai/dsh-memory-bear'
 import * as toolMemory from '@deepseek-ai/dsh-tool-memory'
 import * as memoryAutosave from '@deepseek-ai/dsh-memory-autosave'
 import { loadCordisYaml, presetDefinitions } from '../../../../scripts/cordis-yaml.ts'
@@ -18,7 +18,7 @@ import { declare, harness } from '../../../preset/agent-preset-registry/tests/ha
 
 /** The memory plugins, served to the Loader under `cordis:` builtin names. */
 const BUILTINS = {
-  'memory-remote': memoryRemote,
+  'memory-bear': memoryBear,
   'tool-memory': toolMemory,
   'memory-autosave': memoryAutosave,
 } as const
@@ -43,8 +43,8 @@ function memoryGroup(): Row {
 }
 
 async function setup(): Promise<Context> {
-  vi.stubEnv('MEMORY_SERVICE_URL', 'http://memory.invalid')
-  vi.stubEnv('MEMORY_SERVICE_TOKEN', 'token')
+  vi.stubEnv('MEMORYBEAR_API_KEY', 'key')
+  vi.stubEnv('MEMORYBEAR_BASE_URL', 'http://memory.invalid')
   const ctx = await harness()
   Object.assign(ctx.loader.builtins, BUILTINS)
   return ctx

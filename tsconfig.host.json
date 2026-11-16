@@ -565,7 +565,6 @@
     { "path": "./packages/memory/tool-memory" },
     { "path": "./packages/memory/memory-autosave" },
     { "path": "./packages/memory/memory-agent" },
-    { "path": "./packages/memory/memory-remote" },
     { "path": "./packages/jobs/jobs-local" },
     { "path": "./packages/jobs/tool-jobs" },
     { "path": "./packages/team/agent-team" },

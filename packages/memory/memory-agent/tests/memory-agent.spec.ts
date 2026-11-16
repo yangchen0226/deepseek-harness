@@ -53,7 +53,7 @@ async function setup() {
   await ctx.plugin(NativeToolExecutor)
   ctx.provide('agentPresets', registry as never)
   await ctx.plugin(plugin, {
-    provider: { serviceUrl: 'http://memory.invalid', token: 'secret', endUserOtherId: 'user-1' },
+    provider: { baseUrl: 'http://memory.invalid', apiKey: 'secret', endUserOtherId: 'user-1' },
     recallMode: 'quick',
     presetOrder: 90,
   })
@@ -87,8 +87,8 @@ describe('dsh-memory-agent', () => {
     const group = definition.plugins.find(row => row.id === 'memory')!
     expect(group).toMatchObject({ name: 'cordis:group', group: true, isolate: { memory: true } })
     const rows = group.config as readonly { id: string; config?: unknown }[]
-    expect(rows.map(row => row.id)).toEqual(['memory-remote', 'tool-memory', 'memory-autosave'])
-    expect(rows[0]!.config).toMatchObject({ serviceUrl: 'http://memory.invalid', endUserOtherId: 'user-1' })
+    expect(rows.map(row => row.id)).toEqual(['memory-bear', 'tool-memory', 'memory-autosave'])
+    expect(rows[0]!.config).toMatchObject({ baseUrl: 'http://memory.invalid', endUserOtherId: 'user-1' })
 
     // The credential belongs to the preset, never to what the model or the log sees.
     const event = agent.session.snapshotEvents().findLast(e => e.type === 'memory/agent-created')!

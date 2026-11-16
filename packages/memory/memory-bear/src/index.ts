@@ -11,9 +11,15 @@
  *   task ids without waiting for storage.
  * - `POST /v1/end_user/create` — idempotent on `other_id`; resolves the UUID
  *   every read and write needs.
+ * - `GET /v1/memory-display/written` — the stored-memory timeline, newest
+ *   first, which backs `list`.
+ * - `GET /v1/memory/analytics/user_summary` — the cached user summary, which
+ *   backs `profile`.
  *
- * The API-key face exposes no removal, reflection, or working-memory routes,
- * so `forget` rejects with `MEMORY_UNSUPPORTED` rather than pretending to act.
+ * The same surface serves a self-hosted deployment and the hosted service at
+ * `https://cloud.memorybear.ai`. It exposes no removal, reflection, or
+ * working-memory routes, so `forget` rejects with `MEMORY_UNSUPPORTED` rather
+ * than pretending to act.
  * @module @deepseek-ai/dsh-memory-bear
  */
 
@@ -21,6 +27,7 @@ import type { Context } from '@deepseek-ai/cordis'
 import z from '@deepseek-ai/schemastery'
 import { MemoryEngine, MemoryError } from '@deepseek-ai/dsh-memory'
 import type {
+  MemoryEntry,
   MemoryHealth,
   MemoryItem,
   MemoryListRequest,
@@ -102,6 +109,34 @@ interface WriteResponse {
   readonly end_user_id?: string
 }
 
+/** One `GET /v1/memory-display/written` item. */
+interface WrittenItem {
+  readonly id?: string
+  readonly memory_id?: string
+  readonly memory_type?: string
+  readonly name?: string
+  readonly content?: string
+  readonly occurred_at?: number
+}
+
+/** `GET /v1/memory-display/written` payload. */
+interface WrittenPage {
+  readonly items?: readonly WrittenItem[]
+  readonly page?: { readonly total?: number }
+}
+
+/** `GET /v1/memory/analytics/user_summary` payload. */
+interface UserSummary {
+  readonly one_sentence?: string | null
+  readonly user_summary?: string | null
+  readonly personality?: string | null
+  readonly core_values?: string | null
+  readonly tags?: readonly (string | { readonly name?: string; readonly tag?: string })[] | null
+}
+
+/** The largest page the display route serves. */
+const MAX_PAGE_SIZE = 100
+
 /** `POST /v1/end_user/create` payload. */
 interface EndUserResponse {
   readonly id?: string
@@ -109,7 +144,7 @@ interface EndUserResponse {
 }
 
 /** Upstream codes that mean the credential or quota cannot serve this call. */
-const UNAVAILABLE_CODES = new Set([3009, 3012, 3014, 3015, 3016, 3017])
+const UNAVAILABLE_CODES = new Set([3007, 3009, 3012, 3014, 3015, 3016, 3017])
 /** Upstream codes that mean the named end user does not exist. */
 const MISSING_USER_CODES = new Set([4001])
 
@@ -136,6 +171,8 @@ export class MemoryBearEngine extends MemoryEngine {
   private readonly otherId: string
   private readonly timeoutMs: number
   private readonly language: NonNullable<Config['language']>
+  /** IANA zone the display and analytics routes require. */
+  private readonly timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
   private endUserId: string | undefined
 
   /**
@@ -209,18 +246,44 @@ export class MemoryBearEngine extends MemoryEngine {
     ))
   }
 
-  profile(_request: MemoryProfileRequest): Promise<MemoryProfileResult> {
-    return Promise.reject(new MemoryError(
-      'profile reads need the MemoryBear management surface, which this provider does not configure',
-      'MEMORY_UNSUPPORTED',
-    ))
+  async profile(request: MemoryProfileRequest): Promise<MemoryProfileResult> {
+    const endUserId = await this.resolveEndUser()
+    const summary = await this.send<UserSummary>('GET', '/v1/memory/analytics/user_summary', { query: { end_user_id: endUserId } })
+    const text = (value: string | null | undefined): string[] =>
+      typeof value === 'string' && value.trim() !== '' ? [value.trim()] : []
+    const all: Record<string, string[]> = {
+      basic: [...text(summary.one_sentence), ...text(summary.user_summary)],
+      interests: (summary.tags ?? []).flatMap(tag => typeof tag === 'string' ? text(tag) : text(tag.name ?? tag.tag)),
+      habits: text(summary.personality),
+      emotions: text(summary.core_values),
+    }
+    const wanted = request.sections ?? ['basic', 'interests', 'habits', 'emotions']
+    return { sections: Object.fromEntries(wanted.map(name => [name, all[name] ?? []])) }
   }
 
-  list(_request: MemoryListRequest): Promise<MemoryListResult> {
-    return Promise.reject(new MemoryError(
-      'this memory backend exposes no listing on its API-key surface; MemoryBear retrieves by similarity only',
-      'MEMORY_UNSUPPORTED',
-    ))
+  /**
+   * The display route pages by time and offers no text filter, so a `query`
+   * narrows the returned page only; `total` then counts that narrowed page
+   * rather than every match the backend holds.
+   */
+  async list(request: MemoryListRequest): Promise<MemoryListResult> {
+    const endUserId = await this.resolveEndUser()
+    const pagesize = Math.min(Math.max(request.limit ?? 50, 1), MAX_PAGE_SIZE)
+    const page = await this.send<WrittenPage>('GET', '/v1/memory-display/written', {
+      query: { end_user_id: endUserId, page: '1', pagesize: String(pagesize) },
+    })
+    const entries: MemoryEntry[] = (page.items ?? []).map((item, index) => ({
+      id: item.memory_id ?? item.id ?? `bear-${String(index)}`,
+      content: item.content ?? item.name ?? '',
+      kind: item.memory_type ?? 'unknown',
+      ...typeof item.occurred_at === 'number' ? { createdAt: new Date(item.occurred_at).toISOString() } : {},
+    }))
+    const query = request.query?.trim()
+    if (query === undefined || query === '') {
+      return { items: entries, total: page.page?.total ?? entries.length }
+    }
+    const matched = entries.filter(entry => entry.content.includes(query))
+    return { items: matched, total: matched.length }
   }
 
   async health(): Promise<MemoryHealth> {
@@ -252,39 +315,59 @@ export class MemoryBearEngine extends MemoryEngine {
   }
 
   /**
-   * Send one JSON request and unwrap the upstream envelope.
+   * POST one JSON body and unwrap the upstream envelope.
    * @param path - the absolute path, beginning with `/v1`.
    * @param payload - the JSON body.
    * @returns the envelope's `data`.
    */
-  private async post<T>(path: string, payload: unknown): Promise<T> {
-    const signal = AbortSignal.timeout(this.timeoutMs)
+  private post<T>(path: string, payload: unknown): Promise<T> {
+    return this.send<T>('POST', path, { body: payload })
+  }
+
+  /**
+   * Send one request and unwrap the upstream envelope. The upstream reports
+   * business failures, including an unknown API key, as an envelope beside a
+   * 4xx status, so the envelope's code decides the failure class whenever the
+   * body carries one.
+   * @param method - the HTTP method.
+   * @param path - the absolute path, beginning with `/v1`.
+   * @param options - query parameters, or a JSON body.
+   * @returns the envelope's `data`.
+   */
+  private async send<T>(
+    method: 'GET' | 'POST',
+    path: string,
+    options: { readonly query?: Readonly<Record<string, string>>; readonly body?: unknown },
+  ): Promise<T> {
+    const url = new URL(`${this.baseUrl}${path}`)
+    for (const [key, value] of Object.entries(options.query ?? {})) url.searchParams.set(key, value)
     let response: Response
     try {
-      response = await fetch(`${this.baseUrl}${path}`, {
-        method: 'POST',
+      response = await fetch(url, {
+        method,
         headers: {
-          'content-type': 'application/json',
+          ...method === 'POST' ? { 'content-type': 'application/json' } : {},
           authorization: `Bearer ${this.apiKey}`,
           'x-language-type': this.language,
+          'x-timezone': this.timezone,
         },
-        body: JSON.stringify(payload),
-        signal,
+        ...method === 'POST' ? { body: JSON.stringify(options.body ?? {}) } : {},
+        signal: AbortSignal.timeout(this.timeoutMs),
       })
     } catch (error) {
       throw new MemoryError(`memory backend unreachable at ${path}`, 'MEMORY_UNAVAILABLE', { cause: error })
     }
-    if (!response.ok) {
-      throw new MemoryError(
-        `memory backend answered ${String(response.status)} at ${path}`,
-        response.status === 401 || response.status === 403 ? 'MEMORY_UNAVAILABLE' : 'MEMORY_UPSTREAM_REJECTED',
-      )
-    }
-    const envelope = await response.json() as Envelope<T>
-    if (envelope.code !== 0) {
+    const envelope = await response.json().catch(() => undefined) as Envelope<T> | undefined
+    if (envelope !== undefined && typeof envelope.code === 'number' && envelope.code !== 0) {
       throw new MemoryError(
         `memory backend rejected ${path}: ${envelope.error ?? envelope.msg ?? `code ${String(envelope.code)}`}`,
         classify(envelope.code),
+      )
+    }
+    if (!response.ok || envelope === undefined) {
+      throw new MemoryError(
+        `memory backend answered ${String(response.status)} at ${path}`,
+        response.status === 401 || response.status === 403 || response.status >= 500 ? 'MEMORY_UNAVAILABLE' : 'MEMORY_UPSTREAM_REJECTED',
       )
     }
     return envelope.data as T

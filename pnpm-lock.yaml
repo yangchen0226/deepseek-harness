@@ -3284,9 +3284,6 @@ importers:
       '@deepseek-ai/dsh-memory-bear':
         specifier: workspace:*
         version: link:../../memory/memory-bear
-      '@deepseek-ai/dsh-memory-remote':
-        specifier: workspace:*
-        version: link:../../memory/memory-remote
       '@deepseek-ai/dsh-message-feedback':
         specifier: workspace:*
         version: link:../../feedback/message-feedback
@@ -14248,22 +14245,36 @@ importers:
       '@deepseek-ai/cordis':
         specifier: workspace:~
         version: link:../../../vendor/cordis
+      '@deepseek-ai/dsh-agent':
+        specifier: workspace:*
+        version: link:../../core/agent
+      '@deepseek-ai/dsh-llm':
+        specifier: workspace:*
+        version: link:../../llm/llm
       '@deepseek-ai/dsh-memory':
         specifier: workspace:*
         version: link:../memory
-
-  packages/memory/memory-remote:
-    dependencies:
-      '@deepseek-ai/schemastery':
-        specifier: link:../../../vendor/schemastery
-        version: link:../../../vendor/schemastery
-    devDependencies:
-      '@deepseek-ai/cordis':
-        specifier: workspace:~
-        version: link:../../../vendor/cordis
-      '@deepseek-ai/dsh-memory':
+      '@deepseek-ai/dsh-memory-autosave':
         specifier: workspace:*
-        version: link:../memory
+        version: link:../memory-autosave
+      '@deepseek-ai/dsh-session':
+        specifier: workspace:*
+        version: link:../../core/session
+      '@deepseek-ai/dsh-session-projection':
+        specifier: workspace:*
+        version: link:../../session/session-projection
+      '@deepseek-ai/dsh-system-prompt':
+        specifier: workspace:*
+        version: link:../../core/system-prompt
+      '@deepseek-ai/dsh-tool-executor-native':
+        specifier: workspace:*
+        version: link:../../core/tool-executor-native
+      '@deepseek-ai/dsh-tool-memory':
+        specifier: workspace:*
+        version: link:../tool-memory
+      '@deepseek-ai/dsh-tools':
+        specifier: workspace:*
+        version: link:../../core/tools
 
   packages/memory/tool-memory:
     dependencies:
