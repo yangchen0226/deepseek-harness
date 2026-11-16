@@ -82,8 +82,13 @@ describe('dsh-memory-agent', () => {
     expect(definition.id).toBe('agent-frontend-refactor')
     expect(definition.name).toBe('Frontend Refactor')
     expect(definition.order).toBe(90)
-    const provider = definition.plugins.find(row => row.id === 'memory-remote')!
-    expect(provider.config).toMatchObject({ serviceUrl: 'http://memory.invalid', endUserOtherId: 'user-1' })
+    // The provider and its consumers share one isolated group, so `memory`
+    // never leaks into the root realm the registry guards.
+    const group = definition.plugins.find(row => row.id === 'memory')!
+    expect(group).toMatchObject({ name: 'cordis:group', group: true, isolate: { memory: true } })
+    const rows = group.config as readonly { id: string; config?: unknown }[]
+    expect(rows.map(row => row.id)).toEqual(['memory-remote', 'tool-memory', 'memory-autosave'])
+    expect(rows[0]!.config).toMatchObject({ serviceUrl: 'http://memory.invalid', endUserOtherId: 'user-1' })
 
     // The credential belongs to the preset, never to what the model or the log sees.
     const event = agent.session.snapshotEvents().findLast(e => e.type === 'memory/agent-created')!

@@ -97,6 +97,11 @@ export const VIEWER_ENDPOINT_CLASSES = {
   'job/follow': 'owner-only', // owner background jobs'
   'job/kill': 'owner-only', // owner background jobs
   'job/list': 'owner-only', // owner background jobs'
+  'memory/forget': 'owner-only', // removes the owner's stored memory
+  'memory/health': 'owner-only', // probes the owner's memory engine
+  'memory/list': 'owner-only', // the owner's personal memories
+  'memory/mute': 'owner-only', // appends to the owner's Session
+  'memory/profile': 'owner-only', // the owner's personal profile
   'fileReferences/list': 'owner-only', // owner file references'
   'session/create': 'owner-only', // owner creates a Session
   'session/initializeDefaultModel': 'owner-only', // owner initializes a Session default model

@@ -33,13 +33,13 @@ describe('MemoryDock', () => {
 
   it('shows the switch on and says the turn uses memory', () => {
     renderDock(STATE)
-    expect(screen.getByRole('switch', { name: en.dockSwitchLabel }).getAttribute('aria-checked')).toBe('false')
+    expect(screen.getByRole('switch', { name: en.dockSwitchLabel }).getAttribute('aria-checked')).toBe('true')
     expect(screen.getByText(en.dockActiveHint)).toBeDefined()
   })
 
-  it('shows a muted session as muted', () => {
+  it('shows a muted session with the switch off', () => {
     renderDock({ ...STATE, muted: true, mutedTurn: 1 })
-    expect(screen.getByRole('switch', { name: en.dockSwitchLabel }).getAttribute('aria-checked')).toBe('true')
+    expect(screen.getByRole('switch', { name: en.dockSwitchLabel }).getAttribute('aria-checked')).toBe('false')
     expect(screen.getByText(en.dockMutedHint)).toBeDefined()
   })
 

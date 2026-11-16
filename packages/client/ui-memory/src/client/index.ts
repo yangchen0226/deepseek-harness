@@ -75,7 +75,9 @@ export function apply(ctx: ClientContext): void {
     },
     MemoryPanel,
   )), 'ui-memory: tab body')
-  ctx.effect(() => ctx.slots.register({
+  // The header slot belongs to ui-conversation and is declared after this
+  // plugin may apply, so the registration waits on that declaration.
+  ctx.effect(() => ctx.slots.inject('conversation.session.header.actions', () => ctx.slots.register({
     name: 'conversation.session.header.actions',
     id: 'memory-panel',
     order: 30,
@@ -83,7 +85,7 @@ export function apply(ctx: ClientContext): void {
     inject: (): MemoryHeaderInjected => ({
       open: () => { ctx.sidebarRight.openTab('memory') },
     }),
-  }, MemoryHeaderAction), 'ui-memory: header action')
+  }, MemoryHeaderAction)), 'ui-memory: header action')
   ctx.effect(() => ctx.slots.inject('conversation.input.dock', () => ctx.slots.register({
     name: 'conversation.input.dock',
     id: 'memory-mute',

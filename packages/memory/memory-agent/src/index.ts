@@ -146,29 +146,39 @@ export function apply(ctx: Context, config: Config): void {
         ...config.presetOrder === undefined ? {} : { order: config.presetOrder },
         plugins: [
           { id: 'persona', name: '@deepseek-ai/dsh-persona', config: { prefix: persona(args.name, args.instructions) } },
+          // The provider publishes `memory` into this group's isolated realm, and the
+          // registry rejects a preset whose service leaks into the root realm.
           {
-            id: 'memory-remote',
-            name: '@deepseek-ai/dsh-memory-remote',
-            config: {
-              serviceUrl: config.provider.serviceUrl,
-              token: config.provider.token,
-              workspaceId: config.provider.workspaceId ?? 'default',
-              endUserOtherId: config.provider.endUserOtherId,
-            },
-          },
-          {
-            id: 'tool-memory',
-            name: '@deepseek-ai/dsh-tool-memory',
-            config: { defaultMode: args.recall_mode ?? config.recallMode ?? 'quick' },
-          },
-          {
-            id: 'memory-autosave',
-            name: '@deepseek-ai/dsh-memory-autosave',
-            config: {
-              recallMode: args.recall_mode ?? config.recallMode ?? 'quick',
-              recallOnTurnStart: true,
-              writeOnTurnEnd: true,
-            },
+            id: 'memory',
+            name: 'cordis:group',
+            group: true,
+            isolate: { memory: true },
+            config: [
+              {
+                id: 'memory-remote',
+                name: '@deepseek-ai/dsh-memory-remote',
+                config: {
+                  serviceUrl: config.provider.serviceUrl,
+                  token: config.provider.token,
+                  workspaceId: config.provider.workspaceId ?? 'default',
+                  endUserOtherId: config.provider.endUserOtherId,
+                },
+              },
+              {
+                id: 'tool-memory',
+                name: '@deepseek-ai/dsh-tool-memory',
+                config: { defaultMode: args.recall_mode ?? config.recallMode ?? 'quick' },
+              },
+              {
+                id: 'memory-autosave',
+                name: '@deepseek-ai/dsh-memory-autosave',
+                config: {
+                  recallMode: args.recall_mode ?? config.recallMode ?? 'quick',
+                  recallOnTurnStart: true,
+                  writeOnTurnEnd: true,
+                },
+              },
+            ],
           },
           { id: 'time-context', name: '@deepseek-ai/dsh-time-context' },
           { id: 'tool-bash', name: '@deepseek-ai/dsh-tool-bash', disabled: { __jsExpr: "process.platform === 'win32'" } },

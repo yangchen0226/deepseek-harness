@@ -2,9 +2,9 @@
 #
 # The memory rows stay disabled until MEMORY_SERVICE_URL names a deployed service,
 # because the provider has no usable default endpoint and a memory-less preset
-# must remain startable. Set MEMORY_SERVICE_URL to the deployed Edge Function base
-# (for example `https://<project>.supabase.co/functions/v1/memory`) plus
-# MEMORY_SERVICE_TOKEN, then select this preset in a session.
+# must remain startable. Set MEMORY_SERVICE_URL to the deployed service root
+# (deploy/memory-service) plus MEMORY_SERVICE_TOKEN, then select this preset in a
+# session.
 - insert:
     - id: preset-memory
       name: '@deepseek-ai/dsh-agent-preset'
@@ -14,40 +14,49 @@
         description: Recalls durable user memories before each turn and stores each finished turn.
         order: 2
         plugins:
-          - id: memory-remote
-            name: '@deepseek-ai/dsh-memory-remote'
-            disabled: !!js "!process.env.MEMORY_SERVICE_URL"
+          # The provider publishes `memory` into this group's isolated realm, so
+          # every consumer of that service sits in the same group.
+          - id: memory
+            name: cordis:group
+            group: true
+            isolate:
+              memory: true
             config:
-              serviceUrl: !!js process.env.MEMORY_SERVICE_URL ?? ''
-              token: !!js process.env.MEMORY_SERVICE_TOKEN ?? ''
-              workspaceId: !!js process.env.MEMORY_WORKSPACE ?? 'default'
-              endUserOtherId: !!js process.env.MEMORY_USER ?? 'local'
-              # A cross-border TLS handshake to a remote service costs 0.4-1.3 s
-              # before the first byte, so the provider's 1500 ms default turns a
-              # reachable service into an intermittent outage. The service itself
-              # answers in single-digit milliseconds.
-              timeoutMs: !!js Number(process.env.MEMORY_TIMEOUT_MS ?? 4000)
-          - id: tool-memory
-            name: '@deepseek-ai/dsh-tool-memory'
-            disabled: !!js "!process.env.MEMORY_SERVICE_URL"
-            config:
-              defaultMode: quick
-              enableForget: true
-              enableProfile: true
-          - id: memory-autosave
-            name: '@deepseek-ai/dsh-memory-autosave'
-            disabled: !!js "!process.env.MEMORY_SERVICE_URL"
-            config:
-              recallMode: quick
-              recallOnTurnStart: true
-              writeOnTurnEnd: true
+              - id: memory-remote
+                name: '@deepseek-ai/dsh-memory-remote'
+                disabled: !!js "!process.env.MEMORY_SERVICE_URL"
+                config:
+                  serviceUrl: !!js process.env.MEMORY_SERVICE_URL ?? ''
+                  token: !!js process.env.MEMORY_SERVICE_TOKEN ?? ''
+                  workspaceId: !!js process.env.MEMORY_WORKSPACE ?? 'default'
+                  endUserOtherId: !!js process.env.MEMORY_USER ?? 'local'
+                  # A cross-border TLS handshake to a remote service costs 0.4-1.3 s
+                  # before the first byte, so the provider's 1500 ms default turns a
+                  # reachable service into an intermittent outage. The service itself
+                  # answers in single-digit milliseconds.
+                  timeoutMs: !!js Number(process.env.MEMORY_TIMEOUT_MS ?? 4000)
+              - id: tool-memory
+                name: '@deepseek-ai/dsh-tool-memory'
+                disabled: !!js "!process.env.MEMORY_SERVICE_URL"
+                config:
+                  defaultMode: quick
+                  enableForget: true
+                  enableProfile: true
+              - id: memory-autosave
+                name: '@deepseek-ai/dsh-memory-autosave'
+                disabled: !!js "!process.env.MEMORY_SERVICE_URL"
+                config:
+                  recallMode: quick
+                  recallOnTurnStart: true
+                  writeOnTurnEnd: true
           - id: memory-agent
             name: '@deepseek-ai/dsh-memory-agent'
             disabled: !!js "!process.env.MEMORY_SERVICE_URL || !process.env.MEMORY_AGENT_STUDIO"
             config:
               provider:
-                baseUrl: !!js process.env.MEMORY_SERVICE_URL ?? ''
-                apiKey: !!js process.env.MEMORY_SERVICE_TOKEN ?? ''
+                serviceUrl: !!js process.env.MEMORY_SERVICE_URL ?? ''
+                token: !!js process.env.MEMORY_SERVICE_TOKEN ?? ''
+                workspaceId: !!js process.env.MEMORY_WORKSPACE ?? 'default'
                 endUserOtherId: !!js process.env.MEMORY_USER ?? 'local'
               recallMode: quick
           - id: persona

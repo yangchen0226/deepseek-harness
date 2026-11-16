@@ -44,10 +44,11 @@ export function MemoryDock({ useProjection, t, setMuted }: MemoryDockProps) {
     <div className={css.dock} data-memory-dock>
       <div className={css.bar}>
         <span className={css.label}>{t('dockLabel')}</span>
+        {/* The switch reads "use memory", so it is on while the turn is not muted. */}
         <Switch
-          checked={state.muted}
+          checked={!state.muted}
           label={t('dockSwitchLabel')}
-          onChange={(next) => { void setMuted(next) }}
+          onChange={(useMemory) => { void setMuted(!useMemory) }}
         />
         <span className={css.hint}>{state.muted ? t('dockMutedHint') : t('dockActiveHint')}</span>
       </div>
