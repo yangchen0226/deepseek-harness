@@ -48,8 +48,10 @@ class ScriptedEngine extends MemoryEngine {
     return Promise.reject(new Error('not scripted'))
   }
 
-  profile(_request: MemoryProfileRequest): Promise<MemoryProfileResult> {
-    return Promise.reject(new Error('not scripted'))
+  profileResult: MemoryProfileResult = { sections: {} }
+
+  async profile(_request: MemoryProfileRequest): Promise<MemoryProfileResult> {
+    return this.profileResult
   }
 
   list(_request: MemoryListRequest): Promise<MemoryListResult> {
@@ -97,6 +99,12 @@ describe('dsh-tool-memory', () => {
   it('registers forget when the deployment enables it', async () => {
     const { ctx } = await setup({ enableForget: true })
     expect(ctx.tools.schemas().map(schema => schema.name)).toContain('memory_forget')
+  })
+
+  it('registers profile when the deployment enables it', async () => {
+    const { ctx } = await setup({ enableProfile: true })
+    const names = ctx.tools.schemas().map(schema => schema.name).sort()
+    expect(names).toEqual(['memory_profile', 'memory_recall', 'memory_write'])
   })
 
   it('recalls through the seam and appends one memory/recall event', async () => {

@@ -86,6 +86,16 @@ declare module '@deepseek-ai/dsh-session/types' {
       readonly origin: 'input-dock'
     }
 
+    /** One profile read and the sections it returned. */
+    'memory/profile': {
+      /** The sections the caller asked for; omitted means every supported one. */
+      readonly sections?: readonly string[]
+      /** Section name to the lines the engine holds under it. */
+      readonly values: Readonly<Record<string, readonly string[]>>
+      /** True when the engine could not answer. */
+      readonly degraded: boolean
+    }
+
     /** One removal request and what the engine removed. */
     'memory/forget': {
       /** The selector the caller named. */

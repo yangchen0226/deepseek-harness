@@ -3,23 +3,23 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write packages/memory/tool-memory/README.md
 /:
-  en: 45e7b876c35a6a9c
-  zh: e14e3a29a1f607e3
+  en: 40a7a735a1a813ac
+  zh: f16f93463eacb7d5
 /deepseek-ai-dsh-tool-memory:
   en: fd232e28c2effa41
   zh: 87a83bebad94fb6e
 /deepseek-ai-dsh-tool-memory/summary:
-  en: edf9b9e647923a93
-  zh: 029a7c592460949f
+  en: 7fbefbc32d91b357
+  zh: f0ef068951fe4344
 /deepseek-ai-dsh-tool-memory/table-of-contents:
   en: d847818057704f68
   zh: 1d94b4f39d779818
 /deepseek-ai-dsh-tool-memory/use-this-package:
-  en: cf6ae81c7a6f9893
-  zh: 071e004663f79b3e
+  en: 96a416afa1ae9c9b
+  zh: d7cfc88aaaf2daad
 /deepseek-ai-dsh-tool-memory/use-this-package/what-each-call-does:
-  en: ae03473f34e788fc
-  zh: 058f220f62ab04e5
+  en: 009ebf7f6d53a731
+  zh: b4e40528d74fd1c5
 /deepseek-ai-dsh-tool-memory/understand-the-implementation:
   en: ac01665b4aa18444
   zh: 763b7902e6da387f
@@ -30,10 +30,10 @@
   en: 3039bc5e7a796b21
   zh: 6b7a9eaf69c9ea53
 /deepseek-ai-dsh-tool-memory/model-experience/tool-schemas/what-the-model-sees:
-  en: 953c499a69e17b62
+  en: 9c51eabd7cccc0ea
   zh: a31f4bebfc012dea
 /deepseek-ai-dsh-tool-memory/model-experience/tool-schemas/token-effect:
-  en: f8e56a6b40b02706
+  en: 7789d51a17cf4bb1
   zh: 56c7923e5f503000
 /deepseek-ai-dsh-tool-memory/model-experience/tool-schemas/kv-cache-effect:
   en: bafdd1df48210d1a
@@ -42,7 +42,7 @@
   en: 8e1b2953471f22ba
   zh: 765a7c4655654c0a
 /deepseek-ai-dsh-tool-memory/model-experience/results/what-the-model-sees:
-  en: c4811f896c03b9e2
+  en: fec272d588446c24
   zh: 922cd8afbe643797
 /deepseek-ai-dsh-tool-memory/model-experience/results/token-effect:
   en: b3e54fce0f131ba8

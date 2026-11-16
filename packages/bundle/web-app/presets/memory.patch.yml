@@ -33,6 +33,7 @@
             config:
               defaultMode: quick
               enableForget: true
+              enableProfile: true
           - id: memory-autosave
             name: '@deepseek-ai/dsh-memory-autosave'
             disabled: !!js "!process.env.MEMORY_SERVICE_URL"

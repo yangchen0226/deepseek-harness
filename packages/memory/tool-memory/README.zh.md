@@ -1,5 +1,5 @@
 ---
-description: "模型可见的记忆工具：memory_recall、memory_write 与按需的 memory_forget，每个都落持久会话事件。"
+description: "模型可见的记忆工具：memory_recall、memory_write，以及按需的 memory_forget 与 memory_profile，每个都落持久会话事件。"
 kind: "package-reference"
 ---
 
@@ -10,7 +10,7 @@ kind: "package-reference"
 <a id="summary"></a>
 ## 概述
 
-记忆接缝上的模型可见工具：`memory_recall`、`memory_write`，以及按后端能力注册的 `memory_forget`。
+记忆接缝上的模型可见工具：`memory_recall`、`memory_write`，以及按后端能力注册的 `memory_forget` 与 `memory_profile`。
 
 ## 目录
 
@@ -32,12 +32,14 @@ kind: "package-reference"
   config:
     defaultMode: quick
     enableForget: false
+    enableProfile: false
 ```
 
 | 字段 | 默认 | 含义 |
 |---|---|---|
 | `defaultMode` | `quick` | 模型未指定 `search_mode` 时的检索广度 |
 | `enableForget` | `false` | 是否注册 `memory_forget` |
+| `enableProfile` | `false` | 是否注册 `memory_profile` |
 
 <a id="what-each-call-does"></a>
 ### 行为
@@ -45,6 +47,7 @@ kind: "package-reference"
 - `memory_recall(question, search_mode?)`：调用接缝，落 `memory/recall` 事件（含条目与轨迹），返回原始条目。降级时返回空列表并提示继续，不报错。
 - `memory_write(content, kind)`：提交一条消息，落 `memory/write` 事件（`queued` 与批次 id），回报受理。
 - `memory_forget(target)`：调用接缝并落 `memory/forget`；后端不支持时把错误原样交给模型。
+- `memory_profile(sections?)`：读取已存画像并落 `memory/profile`。它回答记忆已经归纳出的内容，而不是去检索，所以空分区表示那里还没有存过东西。
 
 <a id="understand-the-implementation"></a>
 ## 实现要点

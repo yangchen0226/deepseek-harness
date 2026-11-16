@@ -35,11 +35,14 @@ export interface Config {
   defaultMode?: RecallMode
   /** Whether the forget tool is registered. Backends without removal set false, the default. */
   enableForget?: boolean
+  /** Whether the profile tool is registered. Backends without profile reads set false, the default. */
+  enableProfile?: boolean
 }
 
 export const Config: z<Config> = z.object({
   defaultMode: z.union(['deep', 'normal', 'quick', 'express', 'meta']).default('quick'),
   enableForget: z.boolean().default(false),
+  enableProfile: z.boolean().default(false),
 })
 
 const MODES = ['deep', 'normal', 'quick', 'express', 'meta'] as const
@@ -176,6 +179,7 @@ export function apply(ctx: Context, config: Config): void {
     },
   }))
 
+  if (config.enableProfile === true) ctx.tools.register(profileTool(ctx))
   if (config.enableForget !== true) return
   ctx.tools.register(defineTool({
     name: 'memory_forget',
@@ -199,4 +203,78 @@ export function apply(ctx: Context, config: Config): void {
       }
     },
   }))
+}
+
+/** Section names the engine derives from stored memory kinds. */
+const PROFILE_SECTIONS = ['basic', 'interests', 'habits', 'emotions'] as const
+
+/**
+ * Build the profile tool. It reads what the engine has already concluded about
+ * the user rather than searching for it, so the model uses it when the question
+ * is "what do you know about me" instead of a topic lookup.
+ * @param ctx - the context carrying `tools` and `memory`.
+ * @returns the tool definition.
+ */
+function profileTool(ctx: Context) {
+  return defineTool({
+    name: 'memory_profile',
+    description: 'Read what durable memory already holds about the user, grouped into sections: '
+      + 'basic facts, interests, habits, and relationships. Use it when the user asks what you '
+      + 'know about them. An empty section means nothing has been stored under it yet.',
+    parameters: {
+      sections: {
+        type: 'array',
+        items: { type: 'string', enum: [...PROFILE_SECTIONS] },
+        description: 'Sections to read; omit for every supported section.',
+      },
+    },
+    output: {
+      schema: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          sections: {
+            type: 'object',
+            required: true,
+            additionalProperties: false,
+            properties: Object.fromEntries(PROFILE_SECTIONS.map(name => [
+              name,
+              { type: 'array', required: true, items: { type: 'string' } },
+            ])),
+          },
+          degraded: { type: 'boolean', required: true },
+        },
+      },
+      render: (_args, value) => [{
+        type: 'text',
+        text: value.degraded
+          ? 'Memory is unavailable this turn; you cannot read the stored profile right now.'
+          : renderSections(value.sections),
+      }],
+    },
+    async execute(args, exec) {
+      const requested = args.sections === undefined || args.sections.length === 0 ? undefined : args.sections
+      const result = await ctx.memory.profile(requested === undefined ? {} : { sections: requested })
+      const sections = Object.fromEntries(PROFILE_SECTIONS.map(name => [name, [...(result.sections[name] ?? [])]]))
+      exec.agent?.session.append('memory/profile', {
+        ...requested === undefined ? {} : { sections: requested },
+        values: sections,
+        degraded: false,
+      })
+      return { sections, degraded: false }
+    },
+  })
+}
+
+/**
+ * Render profile sections as the text the model reads.
+ * @param sections - section name to its lines.
+ * @returns the presented block, or a notice when every section is empty.
+ */
+function renderSections(sections: Record<string, readonly string[]>): string {
+  const lines = PROFILE_SECTIONS.flatMap((name) => {
+    const entries = sections[name] ?? []
+    return entries.length === 0 ? [] : [`${name}:`, ...entries.map(entry => `- ${entry}`)]
+  })
+  return lines.length === 0 ? 'No profile information has been stored yet.' : lines.join('\n')
 }

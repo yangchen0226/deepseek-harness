@@ -703,7 +703,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
     dir: 'tool-memory',
     source: 'packages/memory/tool-memory/src/index.ts',
     requires: ['ctx.tools', 'ctx.memory', 'owning Agent session'],
-    writes: ['tool/call', 'memory/recall', 'memory/write', 'memory/forget', 'tool/result'],
+    writes: ['tool/call', 'memory/recall', 'memory/write', 'memory/forget', 'memory/profile', 'tool/result'],
     async mount(ctx) {
       // Schema harvest never executes a tool, so the seam is a stub: every
       // operation rejects, which is what a run that never calls one observes.
@@ -715,7 +715,7 @@ const TOOL_PACKAGES: ToolPackage[] = [
         list() { return Promise.reject(new Error('not scripted')) }
         health() { return Promise.resolve({ reachable: false }) }
       })
-      await ctx.plugin(ToolMemory, { defaultMode: 'quick', enableForget: true })
+      await ctx.plugin(ToolMemory, { defaultMode: 'quick', enableForget: true, enableProfile: true })
     },
     note:
       'memory_forget is opt-in: `enableForget` has no default, so the catalog states the choice it documents, `true` against a backend that implements removal. A backend rejecting MEMORY_UNSUPPORTED still registers the tool when a deployment sets `true`; the refusal then reaches the model as the tool result. `memory_recall` answers `degraded: true` with no items when the engine is unreachable, and the tool says so rather than reporting an empty search.',
