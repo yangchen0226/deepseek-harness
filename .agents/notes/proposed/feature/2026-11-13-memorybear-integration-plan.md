@@ -12,6 +12,8 @@ English | [中文](2026-11-13-memorybear-integration-plan.zh.md)
 
 The service is live on 124.221.105.121: PG 17 cluster `17/main` (5433, loopback), database `memory_svc`, systemd unit `memory-service` (127.0.0.1:7180), an nginx site, a Let's Encrypt certificate (`https://memory.newpm.ai`, expires 2027-02-11, auto-renewing), and a nightly backup. The real provider, tool-memory, and autosave pass an end-to-end test over HTTPS.
 
+A real web session on gpt-6-astra exercised the whole path — preset selection, pre-step recall, turn-end write, a model `memory_write`, the three panel views, the dock switch, and reopening the session after a restart. That run found five defects no unit suite reached; [packaging and composition constraints](#packaging-constraints-learned-the-hard-way) records them.
+
 A cross-border TLS handshake costs 0.4–1.3 s, so the provider's 1500 ms default timeout would turn a healthy service into an intermittent outage; the preset sets `timeoutMs` to 4000 ms and leaves `MEMORY_TIMEOUT_MS` as an override.
 
 | Package / directory | Contents | Tests |
@@ -36,11 +38,19 @@ Not implemented (explicitly deferred):
 - In-conversation recall chip: a `conversation.chat.node` kind renders only when the chat flow produces the node, which a memory plugin cannot add on its own.
 - The per-turn memory switch has landed (`memory/mute` session event plus the `conversation.input.dock` switch); its state lives in the log rather than the client, because it decides whether the model sees recalled text and a replay must reach the same answer.
 - A created agent is neither persisted nor mirrored to the cloud, so it is gone after a restart.
-- Recorded session snapshots and a GIF, both required by the repository.
+- A recorded session snapshot. Replay must run offline and keyless, but every shipped provider needs a remote service, so a deterministic memory scenario first needs an in-process engine (the local provider in the open questions). The GUI GIF is recorded from a real web server and real model rounds; it is not yet attached to a pull request.
+- A Session the panel is opened in must be live: for a closed Session the panel finds no preset-scoped engine and reports browsing as unsupported. Acquiring the preset scope for a closed Session is not implemented.
 
 ### Packaging constraints (learned the hard way)
 
 A new package cannot enter the desktop installer with `"private": true`: the release family's `patterns` are `packages/*/*/package.json`, `members()` skips private manifests, and a missing member fails in `prepare-package-set.ts` with `requires unpacked package`. The `files` array is prescribed exactly by `scripts/check-workspace-constraints.ts`; only a package with a runtime `./types` export may ship `lib/types/**/*.js`.
+
+Composition constraints a real session exposed, each now covered by a test:
+
+- A preset plugin that provides a service must sit in a `cordis:group` with `isolate` for that service, together with every consumer; otherwise the registry refuses the preset.
+- Client Remote namespaces are mounted centrally by `api-remotes`, and liveshare must classify every endpoint.
+- New `SessionEventMap` members need the generated `KNOWN_SESSION_EVENT_TYPES`; without it a session cannot be reopened.
+- Context injections share the user role, so anything that reads "what the user said" must filter on the `user` source kind.
 
 ## Proposal
 

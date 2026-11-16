@@ -12,6 +12,8 @@ Status: proposed
 
 服务已在 124.221.105.121 上线：PG 17 集群 `17/main`（5433，loopback）、库 `memory_svc`、systemd 单元 `memory-service`（127.0.0.1:7180）、nginx 站点、Let's Encrypt 证书（`https://memory.newpm.ai`，到期 2027-02-11，自动续期）、每日备份。真实 provider + tool-memory + autosave 的端到端测试经 HTTPS 通过。
 
+一次基于 gpt-6-astra 的真实 Web 会话跑通了整条链路：选择预设、回合前召回、回合后写入、模型主动调用 `memory_write`、面板三视图、输入区开关，以及服务重启后重新打开会话。这次运行发现了五个单元测试都没覆盖到的缺陷，记录在[打包与组合约束](#packaging-constraints-learned-the-hard-way)。
+
 跨境的 TLS 握手要 0.4–1.3s，provider 默认 1500ms 超时会把健康服务判成间歇不可用，因此 preset 把 `timeoutMs` 设为 4000ms，并留 `MEMORY_TIMEOUT_MS` 覆盖口子。
 
 | 包 / 目录 | 内容 | 测试 |
@@ -36,11 +38,19 @@ Status: proposed
 - 对话内召回 chip：`conversation.chat.node` 的 kind 必须由 chat 流程产出节点才会渲染，记忆插件无法自行新增。
 - "本轮关闭记忆"开关已落地（`memory/mute` 会话事件 + 输入区 `conversation.input.dock`）；状态落在日志里而不是客户端，因为它决定模型能否看到召回内容，重放必须得出同一答案。
 - 创建出的 agent 不落盘、不镜像到云端，重启即失。
-- 录制会话快照与 GIF（仓库要求，尚未补）。
+- 录制的会话快照。回放必须离线且不需要 key，但现有 provider 都依赖远程服务，所以要做出确定性的记忆场景，得先有一个进程内引擎（即待决问题里的本地 provider）。GUI 的 GIF 已基于真实 Web 服务与真实模型轮次录制，尚未附到 pull request。
+- 面板所在的会话必须处于活跃状态：对已关闭的会话，面板找不到预设作用域内的引擎，会把浏览显示为不支持。为已关闭会话获取预设作用域尚未实现。
 
 ### Packaging constraints (learned the hard way)
 
 新包若要进入桌面安装包，**不能设 `"private": true`**：发布 family 的 `patterns` 是 `packages/*/*/package.json`，`members()` 跳过 private 清单，缺了就会在 `prepare-package-set.ts` 报 `requires unpacked package`。`files` 数组由 `scripts/check-workspace-constraints.ts` 精确规定，含运行时 `./types` 导出的包才允许 `lib/types/**/*.js`。
+
+真实会话暴露出的组合约束，现在都有测试覆盖：
+
+- 提供服务的预设插件必须和它的所有消费方一起放在带该服务 `isolate` 的 `cordis:group` 里，否则注册表会拒绝该预设。
+- 客户端 Remote 命名空间由 `api-remotes` 统一挂载，liveshare 还必须为每个端点分类。
+- 新增的 `SessionEventMap` 成员需要重新生成 `KNOWN_SESSION_EVENT_TYPES`，否则会话无法重新打开。
+- 上下文注入同样是 user 角色，凡是读取“用户说了什么”的地方都必须按 `user` 来源过滤。
 
 
 ## Proposal
