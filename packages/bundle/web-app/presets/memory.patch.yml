@@ -1,9 +1,10 @@
-# Agent preset memory: durable memory over the hosted MemoryBear service.
+# Agent preset memory: durable memory over a MemoryBear service, hosted or sent
+# by an operator's own deployment.
 #
 # The memory rows stay disabled until MEMORYBEAR_API_KEY names a MemoryBear API
 # key with the `memory` scope, so a memory-less preset remains startable. The
-# key comes from the MemoryBear console (https://cloud.memorybear.ai);
-# MEMORYBEAR_BASE_URL overrides the hosted origin for a self-hosted deployment.
+# key comes from that deployment's console; MEMORYBEAR_BASE_URL selects the
+# deployment, and the hosted origin applies only when it is unset.
 - insert:
     - id: preset-memory
       name: '@deepseek-ai/dsh-agent-preset'
