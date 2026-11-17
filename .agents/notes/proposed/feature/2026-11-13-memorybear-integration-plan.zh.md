@@ -27,14 +27,14 @@ Status: proposed
 | `packages/memory/memory-agent` | `memory_agent_create`：组合并注册记忆型 agent 预设 | 3 |
 | `packages/client/ui-memory` | 会话右侧记忆页签：召回 / 记忆库 / 画像三视图 + 头部入口 + 输入区开关 | 20 |
 | `packages/api/memory-controller` | 面板 Remote 端点：`list` / `profile` / `forget` / `health` / `mute`，按会话解析引擎 | 9 |
-| `packages/bundle/web-app/presets/memory.patch.yml` | `memory` 预设，`MEMORY_SERVICE_URL` 未设置时记忆行禁用 | — |
+| `packages/bundle/web-app/presets/memory.patch.yml` | `memory` 预设，`MEMORYBEAR_API_KEY` 未设置时记忆行禁用 | — |
 
 未实现（明确延后）：
 
 - 图谱页签：接缝没有关系模型，无数据可读，需先扩展 `MemoryEngine` 与每个 provider。
 - 遗忘页签：记忆库已支持逐条删除，但没有按衰减档位展示的只读视图。
 - Agent 页签：创建出的 agent 通过既有预设选择器出现；`memory_agent_create` 已有，但不落盘、重启即失。
-- 语义向量检索：当前只有词法 + pg_trgm 相似度，没有 embedding。
+- dsh 侧的语义向量检索：harness 不发送向量，跨语言命中完全依赖服务自身的 embedding 模型与 reranker。
 - 对话内召回 chip：`conversation.chat.node` 的 kind 必须由 chat 流程产出节点才会渲染，记忆插件无法自行新增。
 - "本轮关闭记忆"开关已落地（`memory/mute` 会话事件 + 输入区 `conversation.input.dock`）；状态落在日志里而不是客户端，因为它决定模型能否看到召回内容，重放必须得出同一答案。
 - 创建出的 agent 不落盘、不镜像到云端，重启即失。

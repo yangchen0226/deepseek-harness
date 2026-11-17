@@ -27,14 +27,14 @@ The hosted read path runs retrieval upstream across a cross-border link, so the 
 | `packages/memory/memory-agent` | `memory_agent_create`: composes and registers a memory-enabled agent preset | 3 |
 | `packages/client/ui-memory` | Right-sidebar memory tab: recall / library / profile views, header entry, dock switch | 20 |
 | `packages/api/memory-controller` | Panel Remote endpoints: `list` / `profile` / `forget` / `health` / `mute`, resolving the engine per Session | 9 |
-| `packages/bundle/web-app/presets/memory.patch.yml` | The `memory` preset; memory rows stay disabled while `MEMORY_SERVICE_URL` is unset | — |
+| `packages/bundle/web-app/presets/memory.patch.yml` | The `memory` preset; memory rows stay disabled while `MEMORYBEAR_API_KEY` is unset | — |
 
 Not implemented (explicitly deferred):
 
 - Graph tab: the seam has no relation model, so there is nothing to read; it first needs `MemoryEngine` and every provider extended.
 - Forget tab: the library deletes individual memories, but no read-only view groups them by decay stage.
 - Agent tab: created agents appear through the existing preset picker; `memory_agent_create` exists, but the preset is not persisted and dies with the process.
-- Semantic vector retrieval: only lexical plus pg_trgm similarity today, with no embeddings.
+- Semantic vector retrieval from dsh's side: the harness sends no vectors, so cross-lingual matches depend entirely on the service's own embedding model and reranker.
 - In-conversation recall chip: a `conversation.chat.node` kind renders only when the chat flow produces the node, which a memory plugin cannot add on its own.
 - The per-turn memory switch has landed (`memory/mute` session event plus the `conversation.input.dock` switch); its state lives in the log rather than the client, because it decides whether the model sees recalled text and a replay must reach the same answer.
 - A created agent is neither persisted nor mirrored to the cloud, so it is gone after a restart.
