@@ -8,7 +8,7 @@ Status: proposed
 
 ## Problem
 
-**架构（2026-11-17）**：所有记忆操作都依赖 MemoryBear，由 `memory-bear` provider 经 MemoryBear 的 API Key 接口（`/v1`）访问。部署方使用从开源仓库自建、由 `https://memory.newpm.ai` 提供的实例；托管服务 `https://cloud.memorybear.ai` 仍是 provider 的默认值，让随包构建在不配置任何服务时也能启动。过渡期的自建 HTTP 服务（本机 PostgreSQL）及其 `memory-remote` provider 已移除：dsh 侧两个语义不同的后端会让随包默认值含糊不清，而第二个后端没有任何使用方。
+**架构（2026-11-17）**：所有记忆操作都依赖 MemoryBear，由 `memory-bear` provider 经 MemoryBear 的 API Key 接口（`/v1`）访问。部署方使用从开源仓库自建的实例，经 `https://124.221.105.121:8443` 提供，并通过另一张单独签发的证书同时提供 `https://memory.newpm.ai`；托管服务 `https://cloud.memorybear.ai` 仍是 provider 的默认值，让随包构建在不配置任何服务时也能启动。过渡期的自建 HTTP 服务（本机 PostgreSQL）及其 `memory-remote` provider 已移除：dsh 侧两个语义不同的后端会让随包默认值含糊不清，而第二个后端没有任何使用方。
 
 自建实例在单台 4 GB 主机上运行开源服务：`api`（FastAPI，含迁移）、一个覆盖全部记忆队列的 Celery worker、任务调度器、beat、`model-service`（模型渠道在它这里，不在 api）与 `memory-profile`（展示与分析路由的读取侧）。PostgreSQL 复用主机已有的 PG17 集群，Neo4j 存图，Elasticsearch 存向量索引，Redis 承担 broker 与调度状态。`memory-profile` 不拥有任何表：它以只读映射读取 api 的表，并与 api 共用同一个库。
 
