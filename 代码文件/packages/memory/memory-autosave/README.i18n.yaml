@@ -1,0 +1,58 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/memory/memory-autosave/README.md
+/:
+  en: 97ff13620f5e1aec
+  zh: a3eea4e462aebe51
+/deepseek-ai-dsh-memory-autosave:
+  en: fe958b2e8250d302
+  zh: bce0ed13bcbcb72c
+/deepseek-ai-dsh-memory-autosave/summary:
+  en: 9d713b646efdf3e2
+  zh: 32b9a84ef4428b8a
+/deepseek-ai-dsh-memory-autosave/table-of-contents:
+  en: 73f2687f0589969a
+  zh: 9d83fe5770f80fed
+/deepseek-ai-dsh-memory-autosave/use-this-package:
+  en: 4c3e18e27c6f86db
+  zh: 8a72ce2065bc20b0
+/deepseek-ai-dsh-memory-autosave/understand-the-implementation:
+  en: b687b35b2951650e
+  zh: 996fe49e59a7d6c1
+/deepseek-ai-dsh-memory-autosave/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/deepseek-ai-dsh-memory-autosave/model-experience/recalled-context-message:
+  en: 959b9cac66074e1e
+  zh: 07b8c359aed578d6
+/deepseek-ai-dsh-memory-autosave/model-experience/recalled-context-message/what-the-model-sees:
+  en: adfb6aaa69f8c9ec
+  zh: 0f6c01c355242555
+/deepseek-ai-dsh-memory-autosave/model-experience/recalled-context-message/what-the-model-sees/recall-block:
+  en: e06fdab9a6e7da2d
+  zh: f8c9e56009ad83d8
+/deepseek-ai-dsh-memory-autosave/model-experience/recalled-context-message/token-effect:
+  en: ce79472cf76f6ef9
+  zh: e85a605c82a26900
+/deepseek-ai-dsh-memory-autosave/model-experience/recalled-context-message/kv-cache-effect:
+  en: 87a7c8faf0033206
+  zh: 184523ea020a1451
+/deepseek-ai-dsh-memory-autosave/model-experience/turn-end-write:
+  en: a67b8632c5bf3ab3
+  zh: b44bafc4fa68b23f
+/deepseek-ai-dsh-memory-autosave/model-experience/turn-end-write/what-the-model-sees:
+  en: fdb733bdf56eac2a
+  zh: 21858eaa761a603a
+/deepseek-ai-dsh-memory-autosave/model-experience/turn-end-write/token-effect:
+  en: 879114e3f78352ee
+  zh: 8c5b608d49071ae2
+/deepseek-ai-dsh-memory-autosave/model-experience/turn-end-write/kv-cache-effect:
+  en: af71a9c883d90212
+  zh: e2def44ed5de3b75
+/deepseek-ai-dsh-memory-autosave/known-limitations-and-deferred-work:
+  en: 51e822c41c9dc499
+  zh: 986f6eb5e0695ffc
+/deepseek-ai-dsh-memory-autosave/known-limitations-and-deferred-work/dev-note:
+  en: 45d45cbf0319c2d0
+  zh: 31fedaa6f823e865

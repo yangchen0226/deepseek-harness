@@ -1,259 +1,99 @@
-# Agent Note: MemoryBear → DSH 深度集成方案
+# Agent Note: Workspace and global memory with native model calls
 
 Status: proposed
 
 [English](2026-11-13-memorybear-integration-plan.md) | 中文
 
-> 状态：P0 已落地并验证（2026-11-13）；P1 的召回面板已落地；其余为后续工作。
-
 ## Problem
 
-**架构（2026-11-17）**：所有记忆操作都依赖 MemoryBear，由 `memory-bear` provider 经 MemoryBear 的 API Key 接口（`/v1`）访问。部署方使用从开源仓库自建的实例，经 `https://124.221.105.121:8443` 提供，并通过另一张单独签发的证书同时提供 `https://memory.newpm.ai`；托管服务 `https://cloud.memorybear.ai` 仍是 provider 的默认值，让随包构建在不配置任何服务时也能启动。过渡期的自建 HTTP 服务（本机 PostgreSQL）及其 `memory-remote` provider 已移除：dsh 侧两个语义不同的后端会让随包默认值含糊不清，而第二个后端没有任何使用方。
+当前记忆由 Memory 预设组合，切换模式可能移除 provider 和自动召回、写入能力，而可见开关容易让用户误以为当前会话具备记忆。provider 只解析一个配置的终端用户，没有隔离工作区记忆和全局记忆。列表、画像接口成功以及写入已接收，都不能作为完整打通 MemoryBear 的验收依据。
 
-自建实例在单台 4 GB 主机上运行开源服务：`api`（FastAPI，含迁移）、一个覆盖全部记忆队列的 Celery worker、任务调度器、beat、`model-service`（模型渠道在它这里，不在 api）与 `memory-profile`（展示与分析路由的读取侧）。PostgreSQL 复用主机已有的 PG17 集群，Neo4j 存图，Elasticsearch 存向量索引，Redis 承担 broker 与调度状态。`memory-profile` 不拥有任何表：它以只读映射读取 api 的表，并与 api 共用同一个库。
-
-`memory` 预设只在 `MEMORYBEAR_API_KEY` 指向一个带 `memory` scope 的 key 时启用记忆行，该 key 在 MemoryBear 控制台创建。托管的 `/v1` 接口提供召回、写入、终端用户绑定、已存记忆时间线（`/v1/memory-display/written`）与用户摘要缓存（`/v1/memory/analytics/user_summary`）；它没有删除接口，所以预设不注册 `memory_forget`。
-
-一次基于 gpt-6-astra 的真实 Web 会话跑通了整条链路：选择预设、回合前召回、回合后写入、模型主动调用 `memory_write`、面板三视图、输入区开关，以及服务重启后重新打开会话。这次运行发现了五个单元测试都没覆盖到的缺陷，记录在[打包与组合约束](#packaging-constraints-learned-the-hard-way)。那次运行用的是过渡期的自建服务；托管 MemoryBear 路径目前通过其 `/v1` 路由的 stub 以及对 `cloud.memorybear.ai` 的无凭据实测探测验证，端到端测试还在等 MemoryBear API Key。
-
-托管服务的读路径在上游执行检索，还要跨境往返，provider 默认 800ms 超时会把健康的召回判成降级，因此 preset 把 `timeoutMs` 设为 8000ms，并留 `MEMORY_TIMEOUT_MS` 覆盖口子。
-
-| 包 / 目录 | 内容 | 测试 |
-|---|---|---|
-| `packages/memory/memory` | Service Definition：`ctx.memory`、请求/结果类型、`MemoryError` 错误码 | 3 |
-| `packages/memory/memory-bear` | **默认 provider**：托管 MemoryBear——召回、写入、浏览、画像、降级 | 9 + 1 e2e |
-| `packages/memory/tool-memory` | `memory_recall` / `memory_write` / `memory_forget` | 5 |
-| `packages/memory/memory-autosave` | `agent/pre-step` 召回注入 + `turn/end` 批量写入 + `memoryAutosave` 投影 | 5 |
-| `packages/memory/memory-agent` | `memory_agent_create`：组合并注册记忆型 agent 预设 | 3 |
-| `packages/client/ui-memory` | 会话右侧记忆页签：召回 / 记忆库 / 画像三视图 + 头部入口 + 输入区开关 | 20 |
-| `packages/api/memory-controller` | 面板 Remote 端点：`list` / `profile` / `forget` / `health` / `mute`，按会话解析引擎 | 9 |
-| `packages/bundle/web-app/presets/memory.patch.yml` | `memory` 预设，`MEMORYBEAR_API_KEY` 未设置时记忆行禁用 | — |
-
-未实现（明确延后）：
-
-- 图谱页签：接缝没有关系模型，无数据可读，需先扩展 `MemoryEngine` 与每个 provider。
-- 遗忘页签：记忆库已支持逐条删除，但没有按衰减档位展示的只读视图。
-- Agent 页签：创建出的 agent 通过既有预设选择器出现；`memory_agent_create` 已有，但不落盘、重启即失。
-- dsh 侧的语义向量检索：harness 不发送向量，跨语言命中完全依赖服务自身的 embedding 模型与 reranker。
-- 对话内召回 chip：`conversation.chat.node` 的 kind 必须由 chat 流程产出节点才会渲染，记忆插件无法自行新增。
-- "本轮关闭记忆"开关已落地（`memory/mute` 会话事件 + 输入区 `conversation.input.dock`）；状态落在日志里而不是客户端，因为它决定模型能否看到召回内容，重放必须得出同一答案。
-- 创建出的 agent 不落盘、不镜像到云端，重启即失。
-- 录制的会话快照。回放必须离线且不需要 key，但现有 provider 都依赖远程服务，所以要做出确定性的记忆场景，得先有一个进程内引擎（即待决问题里的本地 provider）。GUI 的 GIF 已基于真实 Web 服务与真实模型轮次录制，尚未附到 pull request。
-- 面板所在的会话必须处于活跃状态：对已关闭的会话，面板找不到预设作用域内的引擎，会把浏览显示为不支持。为已关闭会话获取预设作用域尚未实现。
-
-### Packaging constraints (learned the hard way)
-
-新包若要进入桌面安装包，**不能设 `"private": true`**：发布 family 的 `patterns` 是 `packages/*/*/package.json`，`members()` 跳过 private 清单，缺了就会在 `prepare-package-set.ts` 报 `requires unpacked package`。`files` 数组由 `scripts/check-workspace-constraints.ts` 精确规定，含运行时 `./types` 导出的包才允许 `lib/types/**/*.js`。
-
-真实会话暴露出的组合约束，现在都有测试覆盖：
-
-- 提供服务的预设插件必须和它的所有消费方一起放在带该服务 `isolate` 的 `cordis:group` 里，否则注册表会拒绝该预设。
-- 客户端 Remote 命名空间由 `api-remotes` 统一挂载，liveshare 还必须为每个端点分类。
-- 新增的 `SessionEventMap` 成员需要重新生成 `KNOWN_SESSION_EVENT_TYPES`，否则会话无法重新打开。
-- 上下文注入同样是 user 角色，凡是读取“用户说了什么”的地方都必须按 `user` 来源过滤。
-
+本方案将记忆改为独立于模式的能力，提供模型原生调用、工作区导航入口和全局导航入口。下文描述目标行为，不代表当前已经实现。
 
 ## Proposal
 
-不做"把 Python 引擎搬进 dsh"，而是做一条**记忆能力 seam**（Service Definition / Provider / Consumer），把 MemoryBear 作为远程 Provider 接进来。四条产品诉求各有一个明确的宿主机制：
+所有内置 Agent 模式从公共组合获得同一套记忆能力。模式选择控制 Agent 的工作方式，记忆策略独立控制访问。专用 Memory 预设不再是使用前提。已有会话保留历史，通过明确迁移确定其记忆策略。
 
-| 诉求 | dsh 侧机制 | 关键文件 |
-|---|---|---|
-| 会话体现记忆能力 | `ctx.systemPrompt.context()` 持久化召回快照 + `memory/recall` 会话事件 | [system-prompt/src/index.ts:520](../../../../packages/core/system-prompt/src/index.ts) |
-| 通过会话调度记忆 | `agent/pre-step` waterfall（回合前召回）、`turn/end`（回合后写入）、工具调用 | [time-context/src/index.ts:197](../../../../packages/context/time-context/src/index.ts) |
-| Agent 创建 | 预设（`PresetDefinition` = id/name/plugins 行）+ 会话内创建工具 | [agent-preset-registry/src/definition.ts:6](../../../../packages/preset/agent-preset-registry/src/definition.ts) |
-| 会话窗口内 WebUI | `ctx.sidebarRightTabs.register` + keyed slot `sidebar.right.pane.tab`，对话内 chip 走 `conversation.session.header.actions` | [ui-sidebar-right/src/client/tab-registry.ts:94](../../../../packages/client/ui-sidebar-right/src/client/tab-registry.ts) |
+每个模式均显示记忆开关。建议语义：账号与工作区设置提供默认值，会话覆盖跨模式切换保留，显式本轮覆盖仅影响一轮。模型请求准入前解析并记录有效策略，内部区分自动召回、自动写入和模型主动操作。
 
-三个必须遵守的仓库约束（已核实，不是设计偏好）：
+关闭记忆停止新的召回和写入准入，包括模型主动调用。已经提交的远程写入不会因此撤回，历史上下文中已有的召回文本也不会被抹去，界面须说明这一限制。手动浏览仍可使用。未配置服务时给出配置指引，已开启、服务不可用与已关闭分别展示。
 
-1. **没有"每次模型请求前随意塞系统内容"的钩子。** `agent/request` 已废弃且不可改 messages。召回结果要么走 `systemPrompt.context()`（持久化、可重放），要么走 `agent.inject()`（下一条准入请求可见）。→ 召回一律走 `systemPrompt.context()`。
-2. **Model-visible ⟺ logged。** 每个召回/写入/遗忘/画像都必须 `session.append('memory/...')`，类型合并进 `@deepseek-ai/dsh-session/types` 的 `SessionEventMap`。`@mode` 只用于 Cordis `Events`，`SessionEventMap` 成员只写散文 JSDoc。
-3. **Provider 边界不放业务分支。** Neo4j/Celery/ES 词汇只存在于 `memory-bear` provider 内；消费方只看到 `recall/remember/forget/profile/graph`。
+## Memory scopes
 
-## Layering and package structure
+全局记忆指当前用户明确允许跨工作区共享的记忆，不是所有用户的数据，也不是工作区记忆的自动汇总。工作区记忆保存该用户在当前项目中的事实、决策和约定。团队共享记忆需要另行设计权限。
 
-```
-packages/memory/
-  memory/                  Service Definition: types, request/spec split, branded ids
-  memory-bear/             Provider: MemoryBear HTTP client + contract checks + retries/timeouts
-  memory-autosave/         Consumer: pre-step recall, turn-end write, degraded state
-  tool-memory/             Consumer: memory_recall / memory_write / memory_forget / memory_profile
-  memory-agent/            Consumer: in-session agent creation (preset registration + optional MemoryBear app mirror)
+召回可同时查询全局和当前工作区，每条结果保留范围与来源。项目专属约定优先于冲突的通用偏好，冲突信息保留供查看。一次写入必须有明确且唯一的目标范围；项目事实默认写入工作区，跨项目偏好只有经用户明确要求或已确认策略才进入全局。
 
-packages/client/
-  ui-memory/               Tab type memory://session/<id>; the panel views
-  ui-agent-preset/         (existing) a "memory-enabled agent" preset card, reusing the seat mechanism
-```
+Host 解析不透明的稳定用户 ID 和持久工作区 ID，路径与显示名称不作为身份主键。映射包含部署、远端租户或工作空间、用户与记忆范围，重启和重命名后保持一致。跨设备使用同一工作区需要明确的身份绑定。
 
-注册位置（漏一处就启动失败，`packages/client/AGENTS.md:145-154`）：
+MemoryBear 的 workspace_id 由 API Key 所属空间确定，不自动等于 DSH 工作区。现有 provider 没有范围字段。先验证独立 end_user 映射能否在写入、召回、列表和画像四条路径隔离各个 DSH 范围；若不行，必须扩展后端的显式范围过滤后再启用界面。给入口改名或过滤列表第一页不构成隔离。
 
-- Host：`packages/bundle/base/cordis.patch.yml` 行 + `packages/bundle/base/package.json` `dependencies`（**这就是 resolver 清单**）+ `tsconfig.host.json` references。
-- Client：`packages/bundle/web-app/cordis.patch.yml` 行 + `web-app/package.json` + `tsconfig.client.json`。
+既有 MEMORY_USER 数据保留为明确标识的旧集合，直到用户指定归属。不得复制到所有工作区，也不得静默提升为全局记忆。映射变更必须提供可回退的迁移方案。
 
-### Service Definition shape
+## Native model calls
 
-```ts
-// packages/memory/memory/src/types.ts
-export interface MemoryRecallRequest { question: string; mode: RecallMode; turn: number; limit?: number }
-export interface MemoryRecallResult {
-  items: readonly MemoryItem[]
-  trace: readonly RecallStage[]        // profile_loaded → query_split → hybrid_searched → relation_searched → results_merged → result_ready
-  degraded: boolean
-  latencyMs: number
-}
-export type RecallMode = 'deep' | 'normal' | 'quick' | 'express' | 'meta'
-```
+拟新增运行时类型 memory-call 和 memory-result。请求包含 callId、operation（recall、write 或 profile）、scope 和对应参数；结果以 callId 关联，包含有界内容、来源引用和明确状态。后端未提供授权删除接口前不开放删除调用。
 
-`resolve(request): Spec` 在 provider 内完成默认值（mode、limit、end_user 绑定），`run()` 不含 `?? default`。
+记忆调用作为有类型的模型输出解析，由专用记忆执行服务分发，不注册到普通工具目录、不进入工具执行器，也不生成通用工具卡片。模型适配器必须声明并实现请求、流式片段、结果与续答的编码方式。给工具改名不能算原生支持。
 
-## Identity mapping
+当前 LLM 协议没有 memory-call 类型。必须先定义能力协商并验证各模型协议，再宣称模型主动记忆可用。没有专用通道的 provider 需要明确的结构化输出协议及完整分帧校验；不得从任意自然语言或工具结果中提取命令执行。不支持的适配器保留策略允许的自动记忆，并明确禁用模型主动记忆，不静默退回工具调用。
 
-| dsh | MemoryBear |
-|---|---|
-| workspace 根路径 | `workspace_id`（**不随请求传**，由 API Key 推导） |
-| `identity` 用户 | `end_user.id`（UUID）；`other_id` = dsh 用户稳定标识 |
-| session | `conversation_id`（写入时传，读时走 `session_id?`） |
-| turn | 写入批次；`metadata.turnId / agentId` |
+执行服务在分发前检查有效策略、允许的范围、内容限制和调用标识，只有完整且通过校验的请求才执行。取消停止新请求准入；中断的远程写入标记结果未知，不能盲目重试。去重须覆盖重连和回放，重试写入前必须验证远端幂等能力。读取结果在进入模型续答前落日志，回放不重复远程副作用。
 
-认证：`Authorization: Bearer <key>` 或 `X-API-Key`，scope 必须含 `memory`；基础路径 `/v1`；另需 `X-Language-Type: zh|en`，展示类接口必须 `X-Timezone`（IANA），MCP 与偏好召回必须 `X-End-User-Other-Id`。
+优先使用已记录的扩展点接入；必须扩展 agent-loop 时，同步更新架构文档、TypeScript 与 Python SDK 投影、流式组装、会话读取兼容性及升级指南。原 tool-memory 路径在原生调用方和持久历史读取均有替代后退出。
 
-映射表是本地非会话存储：`defineDomain({ name: 'memory-bindings', version: 1, tables: { users: ... } })`。首次使用先 `POST /v1/end_user/create { other_id }`（同 `other_id` 幂等），把返回的 UUID 写回本地表。
+## Navigation and views
 
-**契约约束（provider 必须吸收，不能外泄给消费者）：**
+主侧边栏在工作区分组之外增加「全局记忆」，每个工作区分组内增加「工作区记忆」。两者打开独立记忆页面，不依赖当前是否有活跃会话。会话侧栏保留紧凑的「记忆活动」查看器，并链接到对应记忆集合。
 
-1. 写入异步：`/v1/memory/write` 返回 `task_ids`，无公开状态接口；落地检测用 `GET /v1/memory-display/written`。`memory/write` 事件因此只能标记 `queued`，不能标记 `stored`。
-2. `/v1` 面**没有** forget/reflection/working/short-term/episodic/perceptual。遗忘只能：(a) 用管理端 JWT 调 `/api/memory/forget-memory/*`（需另一套凭据），或 (b) v1 只提供删除工具走内部端点。**P0 不实现遗忘工具**，UI 的遗忘页签只读展示（来自 `/v1/memory-display/*` 与 dashboard 统计），写入路径不可用的能力必须显式隐藏而不是给假按钮。
-3. 读接口同步，`deep/normal` 含 LLM 拆题+汇总（最慢），`express` 纯关键词（最快）。默认 `express`，可配 `quick`。
-4. 响应统一 `{code,msg,data,error,time}`，`code===0` 为成功；错误码 3009/3012/3014-3017（鉴权/限流）、4001（用户不存在）、1003（参数）需映射为 `HarnessError`。
-5. `storage_type=rag` 的空间无图/关系/社区，写入同步完成且无 `task_ids`；provider 需按 workspace 属性分支，但对消费者暴露同一 `recall/remember` 语义。
+每个记忆页面包含「记忆活动」「记忆库」「画像」，始终标明所属范围。全局画像展示用户共享偏好，工作区画像展示项目约定与上下文，不能把项目摘要当成人格画像。
 
-## Session behavior
+记忆活动分开展示召回与写入，并标明自动或模型主动来源、会话、范围和时间。召回展示问题、命中、来源引用和降级状态；写入区分已接收、可观测时的处理中、确认后的已入库、失败和结果未知。不得从任务 ID 已返回推断正在处理或已经入库。
 
-**召回。** `agent/pre-step`（prepend）里：读本轮用户消息 → 用极轻规则判断是否需要召回（短寒暄/纯工具追问跳过）→ 并行调用 provider `recall`（硬超时 800ms）→ `session.append('memory/recall', ...)` → `systemPrompt.context()` 已注册的条目在下一次装配时带上已落盘的召回内容。
+记忆库读取 MemoryBear 的实际范围集合，支持分页、详情和真实的搜索语义。现有 provider 只过滤已取回的一页，全库搜索需要后端搜索接口或明确标识范围的替代方式。画像读取对应后端摘要并展示可获得的更新时间。空数据、加载中、无权限、服务不可用和能力不支持分别展示。
 
-注意实现顺序：`systemPrompt.context()` 的 `text` 函数在装配时读取**投影状态**（最近一次 `memory/recall`），而不是在 pre-step 里拼字符串。这样重放时内容与当时一致。
+跨会话活动需要按用户与范围建立持久索引，保存事件引用并具备可回放重建策略，不能只保存在活跃 Agent 中。会话活动从持久事件派生；手动浏览记忆库和画像不会自动注入模型，也不生成虚假的会话操作记录。
 
-**写入。** `turn/end` 批次化：用户消息 + 助手消息 + 工具结果摘要 → `remember(fast_write)` → `session.append('memory/write', { batchId, queued })`。失败不打断回合，但必须落事件（`error` 字段），不允许静默。
+## MemoryBear integration
 
-**遗忘。** 只经 `memory_forget` 工具或 UI 显式动作，二者都落事件。自动衰减归 MemoryBear 自己的 pipeline，dsh 不实现第二套。
+provider 负责凭据解析、远端工作空间鉴权、按范围绑定终端用户、HTTP 校验、超时和后端能力识别。凭据保留在 Host。当前 /v1 接口支持写入、召回、列表与画像；写入接受后异步处理，本集成尚未确认可用的公开任务状态和删除接口。
 
-**降级。** provider 不可达 → `memory/recall { degraded: true, latencyMs }`，回合继续，UI 显示"记忆不可用"。绝不静默丢弃。
-
-## Model-visible tool contract
-
-名字与参数对齐 MemoryBear 已有 LLM 工具契约，便于两侧对照与迁移：
-
-| 工具 | 参数 | 调用时机 |
-|---|---|---|
-| `memory_recall` | `question`（改写后的检索式）、`search_mode`（5 档） | 询问偏好/过往决策/早前实体；回合前自动召回未命中 |
-| `memory_write` | `content`、`kind`（preference/fact/event/relationship/procedure）、`confidence` | 用户陈述持久事实或要求记住 |
-| `memory_forget` | `target`（id 或自然语言选择器） | 用户要求遗忘；纠正错误记忆 |
-| `memory_profile` | `section`（basic/interests/habits/emotions） | 回答"你了解我什么" |
-
-描述只写模型视角，不出现 HTTP/队列/图数据库词汇。
-
-## Client: MemoryBear pages → the session window
-
-MemoryBear 有 8 个记忆相关页面（MemoryManagement、MemoryEngine、MemoryConversation、UserMemory、UserMemoryDetail、MemoryExtractionEngine、BrainMemory、ForgettingEngine、SelfReflectionEngine、EmotionEngine）。会话窗口只能容纳一个右侧面板，因此**合并为六个页签**，其余降级为页签内的区块：
-
-| 页签 | 对应 MemoryBear 页面 | dsh 内呈现 |
-|---|---|---|
-| 记忆 | UserMemory、UserMemoryDetail | 可搜索列表；每条显示来源/分数/时效；删除 |
-| 图谱 | UserMemoryDetail/GraphDetail、D3Graph | 当前会话实体的邻域图 |
-| 召回轨迹 | Chat/MemoryRecall、MemoryConversation | 按回合的阶段时间线、命中数、召回指数 |
-| 画像 | BrainMemory、UserMemoryDetail 主体 | 基础事实、兴趣、习惯、情绪趋势 |
-| 遗忘 | ForgettingEngine、ForgetDetail | **只读**：休眠/衰减/清除三档与最近周期（`/v1` 面不可写，见 §3 约束 2） |
-| Agent | ApplicationManagement、ApplicationConfig | 记忆型 agent 列表、创建、草稿试运行 |
-
-对话面增量（全部走既有 slot，不新造机制）：
-
-- 助手消息上方的召回 chip：`召回 3 条 · 查看轨迹`（`conversation.chat.node`，参照 ui-goal）。
-- 输入区记忆开关：本轮关闭召回与写入（`conversation.input.dock`）。
-- `memory_write` 结果的内联卡片（客户端从 `tool/call` + `tool/result.meta` 派生，不在宿主画 UI）。
-
-页签注册需要两处同 `id`：`ctx.sidebarRightTabs.register({ id, kind, title, guide })` 与 `ctx.slots.register({ name: 'sidebar.right.pane.tab', key: id }, Body)`，都包在 `ctx.effect` 里以证明释放。
-
-## Agent creation
-
-**预设是唯一事实来源。** `PresetDefinition = { id, name, description, order, plugins: 行列表 }`。新增两个预设：
-
-- `memory`：`memory-bear` + `memory-autosave` + `tool-memory` + persona（召回优先、写入克制）。
-- `memory-agent-studio`：额外挂 `memory-agent`，允许会话内创建别的 agent。
-
-**会话内创建**：`memory_agent_create` 工具（默认不挂，仅 `memory-agent-studio` 预设可用）：
-
-```
-memory_agent_create({ name, role: 'standalone'|'master'|'sub', skills, memory: { mode, writePolicy }, mirrorToMemoryBear })
-```
-
-产物：一个预设目录（与 `agent-preset` 同级）+ 若 `mirrorToMemoryBear` 则 `POST /api/apps` 创建 MemoryBear app（`agent_config.memory` 存记忆配置）。返回创建后的 agent 名称，客户端 Agent 页签即时可见。
-
-## Real usage scenarios
-
-**S1 回到三周前的项目。** 新会话问"迁移脚本当时怎么定的"。pre-step 以 `quick` 召回，命中"选型 A"与"否决的 B 方案"。chip 显示 2 条，模型直接回答并引用决策，无需重读仓库。轨迹页签显示两条命中来自混合检索哪一路。
-
-**S2 跨会话偏好。** 用户说"以后用 pnpm，别用 npm"。模型调 `memory_write(kind: preference)`，记忆页签新增一条。下次会话召回命中，agent 不再建议 npm。用户改口"忘掉这个"→ `memory_forget`，页签显示删除记录。
-
-**S3 多 agent 交接。** master 委派 sub（不同预设），两者解析到同一 `end_user_id`，sub 的召回能看到 master 的写入——这解决 MemoryBear 自己点名的"多 Agent 记忆孤岛"，靠身份层而非复制上下文。
-
-**S4 遗忘生效。** 用户问旧手机号。MemoryBear 衰减流水线已将其降权，轨迹标记 `decayed`；agent 回答"已不掌握该信息"而不是答旧数据。遗忘页签显示它处于哪一档。
-
-**S5 会话内建 agent。** "帮我建一个只做前端重构的 agent，记得我的技术栈偏好"→ `memory_agent_create` 建预设（`mode: deep`，`skills: [frontend-refactor]`，persona 先召回偏好）。Agent 页签可见并可立即启动；开了镜像则同一 agent 在其他客户端也能用。
-
-**S6 降级。** MemoryBear 不可达。召回 800ms 超时，落 `degraded: true`，回合继续，chip 显示"记忆不可用"，会话日志准确记录模型没收到什么。
-
-**S7 隐私边界。** 用户从输入区关掉本轮记忆。pre-step 跳过召回、turn/end 跳过写入，状态由事件派生，重放时同一回合仍显示为关闭。
+端到端完成要求同一范围的记录能够在 DSH 与 MemoryBear 控制台两边核对，包含异步提取和画像刷新。轮询必须有界且可取消。无法可靠关联写入与入库记录时保留已接收状态并提供刷新入口，不能仅凭相似文本宣称写入完成。
 
 ## Implementation order
 
-**P0（可独立评审与合并）**
+1. 定义范围身份、权限、开关语义、迁移和 provider 能力矩阵；先在实际部署验证数据隔离，再建设分范围页面。
 
-1. `packages/memory/memory`：类型 + 契约测试。
-2. `packages/memory/memory-bear`：HTTP provider，含 `external_api_contract` 校验、超时、重试；用本地 stub server 测试。
-3. `packages/memory/tool-memory`：四个工具 + `SessionEventMap` 声明 + 投影 `memory.recall`。
-4. `packages/memory/memory-autosave`：pre-step 召回 + turn/end 写入 + 降级路径。
+2. 将记忆组合移出预设，所有模式提供开关；保留历史，避免重复自动保存监听，验证新旧会话及模式切换。
 
-**P1**
+3. 实现原生调用、适配器能力协商、策略执行、持久事件及 SDK 投影；真实模型全链路验收后再启用主动记忆。
 
-5. `packages/client/ui-memory`：召回轨迹页签 + 对话 chip（先做这两项，价值密度最高）。
-6. 记忆页签 / 遗忘页签。
-7. 图谱页签（依赖 provider 的 graph 接口）。
+4. 新增工作区和全局导航、持久活动浏览、分范围记忆库与画像，以及可与后端核对的写入反馈；验证浅深主题和受限宽度的实际页面。
 
-**P2**
-
-8. 画像页签。
-9. `memory` 预设 + `ui-agent-preset` 卡片。
-10. `memory-agent` 工具与 Agent 页签。
-
-每步同时交付：包 README、JSDoc 契约、行为测试、Loader 组合测试；P0-3 起需要录制的会话快照；UI 变更需要 GIF。
+5. 完成离线录制回放、真实服务测试、重启恢复、跨范围拒绝测试和升级说明。图谱、遗忘管理及 Agent 创建持久化作为独立后续任务。
 
 ## Alternatives considered
 
-**把 Python 引擎整个嵌进来。** 否决：Neo4j + ES + Celery 无法嵌进 Node harness，且会分叉上游的生命周期实现。
+不采用仅 Memory 预设具备记忆的设计，因为它耦合了独立选择。不采用同一 end_user 支撑两种范围页面的设计，因为标签无法实现隔离。目标模型交互不走普通记忆工具。也不解析任意自然语言执行操作，因为无法可靠区分可执行调用与引用内容。
 
-**客户端直接发 HTTP。** 否决：绕过了"模型可见即已记录"，什么都不可重放，还会把凭据泄漏到浏览器。
-
-**只做一个单体 `memory` 包。** 否决：接缝必须有 provider 拆分，才能加入本地 provider，也才能把 Python 专有词汇挡在消费方之外。
+保持 MemoryBear 为远程服务，不嵌入其 Python 栈。保留 Service Definition、Provider 和独立 Consumer，避免后端细节进入 Agent 模式或客户端组件。自动记忆与模型原生调用共享策略和服务执行，但保留不同活动来源。
 
 ## Acceptance criteria
 
-- 带 `memory` 预设的会话能召回上一次会话的事实，并在面板里显示检索轨迹。
-- 每次召回、写入、遗忘、画像都出现在会话日志里，并重放出同一个界面。
-- provider 不可达时：召回在超时内降级，回合继续，界面显示降级状态。
-- 把 provider 从 MemoryBear 换成桩实现，消费方无需改动。
-- 配置开启时，`memory_agent_create` 在会话内产出一个可运行的 agent。
+- 所有内置模式显示记忆控制，切换模式保留有效策略；关闭记忆阻止新的自动和模型主动操作。
 
-## Risks
+- 工作区 A 不能读取 B 的事实；显式全局偏好可在两者使用。重命名、重启及无活跃会话浏览后仍为同一范围数据。
 
-- **延迟**：回合前召回多一跳网络。缓解：默认 `quick`、与上下文装配并行、硬超时。
-- **记忆重复**：DSH 的压实与 MemoryBear 都会摘要。边界：压实负责会话窗口，MemoryBear 负责长期知识。
-- **隐私**：记忆会离开本机。缓解：显式的写入开关与按回合开关；终端用户映射表留在本地。
-- **版本漂移**：MemoryBear 的 API 尚未 1.0。缓解：provider 钉住 `external_api_contract.json` 的形态，并在 wire 边界校验响应。
+- 真实模型发出原生调用、收到结果并继续回答。流式中断、非法分帧、越权范围与回放不产生意外写入，普通记忆工具不出现在调用链中。
+
+- 使用独立测试用户核对 DSH 活动、入库记忆和画像更新与 MemoryBear 一致；已接收写入没有证据时不标已入库，鉴权失败不显示为空记忆库。
+
+- 兼容性检查覆盖旧会话与两个 SDK，录制回放离线且确定。GUI 行为变更完成真实服务视觉验证，GUI PR 附规定的录屏。
 
 ## Open questions
 
-1. **召回时机**：每回合都召回，还是用户消息过启发式阈值才召回？（方案默认后者，省延迟）
-2. **Agent 镜像**：v1 是否要 `mirrorToMemoryBear`，还是只做 DSH 预设？
-3. **Provider 首发形态**：只做远程 `memory-bear`，还是同时给一个本地 SQLite 的 `memory-local` 兜底？
-4. **UI 合并策略**：接受六页签合并，还是坚持把 MemoryBear 的 8 个页面都进客户端？
-5. **终端用户生命周期**：DSH 用户被删除时，谁负责清理 MemoryBear 侧的终端用户？
+默认是否开启、是否分别提供读写控制、显式全局写入是否需确认，仍待产品决策。原生传输需要按实际配置模型验证。独立 end_user 映射还是后端 scope 字段，需要根据隔离验证结果确定。这些问题不能通过增加侧边栏标签解决。
+
+## Risks
+
+原生协议的模型支持、远端范围隔离与异步写入状态仍需实测；未经验证时不能开放越范围访问、重试未知结果写入，或宣称已入库。旧集合迁移必须明确归属并保留恢复路径。

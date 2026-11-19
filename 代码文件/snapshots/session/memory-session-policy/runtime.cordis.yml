@@ -1,0 +1,3 @@
+- insert:
+    - id: memory-session-policy-fixture
+      name: ../../../packages/memory/memory-autosave/tests/session-policy-fixture.ts

@@ -1,0 +1,26 @@
+/* Collection health line: one quiet row above the views. A degraded service
+   keeps the same geometry so switching collections does not shift the page. */
+
+.line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 6px 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--dsw-alias-text-secondary);
+}
+
+.line[data-health='unavailable'] {
+  color: var(--dsw-alias-state-error-primary);
+}
+
+.line[data-health='unconfigured'] {
+  color: var(--dsw-alias-text-tertiary);
+}
+
+.line[data-health='empty'] {
+  color: var(--dsw-alias-text-tertiary);
+}

@@ -1,0 +1,61 @@
+# Bilingual-pair consistency record for 后端开发文档.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write 文档/后端开发文档.md
+/back-end-development-guide-memory-agents-plaza-evolution-knowledge:
+  en: fd6d8a4378383473
+  zh: 300d22d707bc6680
+/back-end-development-guide-memory-agents-plaza-evolution-knowledge/scope:
+  en: 7ba29bec74e78ed0
+  zh: acc153bf9ecd3153
+/back-end-development-guide-memory-agents-plaza-evolution-knowledge/architecture-placement:
+  en: 8706c53118bf2c07
+  zh: 105166cde9fcd553
+/back-end-development-guide-memory-agents-plaza-evolution-knowledge/remote-namespaces:
+  en: db03ed78bd862173
+  zh: 9d6a8cf22a7fc6e9
+/back-end-development-guide-memory-agents-plaza-evolution-knowledge/remote-namespaces/existing-memory-namespace-extended-not-replaced:
+  en: f724b1e74b758afc
+  zh: ab36770527c3a2b2
+/back-end-development-guide-memory-agents-plaza-evolution-knowledge/remote-namespaces/knowledge-namespace-new:
+  en: ca853f127b7500be
+  zh: a867c3ccc7369feb
+/back-end-development-guide-memory-agents-plaza-evolution-knowledge/remote-namespaces/agent-center-plaza-evolution-new:
+  en: 3459934ae5f1967e
+  zh: bf95661b91f8e99a
+/back-end-development-guide-memory-agents-plaza-evolution-knowledge/capability-seams:
+  en: 840db3b378ac52a3
+  zh: 3c4da1967e81b34c
+/back-end-development-guide-memory-agents-plaza-evolution-knowledge/capability-seams/memory:
+  en: 318f4b3bb666d7d6
+  zh: 0a4b4bc2cb042bd6
+/back-end-development-guide-memory-agents-plaza-evolution-knowledge/capability-seams/knowledge:
+  en: bd23746eb123b235
+  zh: 83a92ca4b8d6f6dd
+/back-end-development-guide-memory-agents-plaza-evolution-knowledge/capability-seams/execution-records:
+  en: 69f7d1d61d7e8365
+  zh: a7faeb875c5e0226
+/back-end-development-guide-memory-agents-plaza-evolution-knowledge/capability-seams/evolution-report:
+  en: e54a57fe5387c927
+  zh: 1d97e1d0d01752e2
+/back-end-development-guide-memory-agents-plaza-evolution-knowledge/durable-facts-and-persistence:
+  en: bbbbc6a84770dc2c
+  zh: eb06b6bd729f47dd
+/back-end-development-guide-memory-agents-plaza-evolution-knowledge/permissions-tenancy-and-governance:
+  en: f0174aebf57798c0
+  zh: f04fcdb9e5ac08f5
+/back-end-development-guide-memory-agents-plaza-evolution-knowledge/provider-integration-memorybear-and-beyond:
+  en: f1a53aab7eac24cc
+  zh: 1003291ed3a03244
+/back-end-development-guide-memory-agents-plaza-evolution-knowledge/observability:
+  en: 21b39b4471e56a96
+  zh: 3d394e3f8ad6115d
+/back-end-development-guide-memory-agents-plaza-evolution-knowledge/testing:
+  en: 584b32a589c53357
+  zh: 6ffb2985b8fff304
+/back-end-development-guide-memory-agents-plaza-evolution-knowledge/delivery-order:
+  en: e881d20548517b32
+  zh: c9a57ddfa2131351
+/back-end-development-guide-memory-agents-plaza-evolution-knowledge/risks-and-mitigations:
+  en: 6b0a8dcb3f0aba0e
+  zh: 877e9d25e313e6ed

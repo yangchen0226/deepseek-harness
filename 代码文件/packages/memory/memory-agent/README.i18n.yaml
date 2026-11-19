@@ -1,0 +1,55 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/memory/memory-agent/README.md
+/:
+  en: 6df71ca32c8431e7
+  zh: f3cda774a9c717ad
+/deepseek-ai-dsh-memory-agent:
+  en: 27efc2572f0ee863
+  zh: ad6228b07dc58243
+/deepseek-ai-dsh-memory-agent/summary:
+  en: bc84d0f5c7ac9141
+  zh: 6a8dd561505ecf39
+/deepseek-ai-dsh-memory-agent/table-of-contents:
+  en: 76368b6b1da79c80
+  zh: f30d95931eeb976b
+/deepseek-ai-dsh-memory-agent/use-this-package:
+  en: d41ee53947503321
+  zh: 5ff7b10eac40da06
+/deepseek-ai-dsh-memory-agent/understand-the-implementation:
+  en: 682b24c18b97cf79
+  zh: 50f3742acabcf640
+/deepseek-ai-dsh-memory-agent/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/deepseek-ai-dsh-memory-agent/model-experience/tool-schema:
+  en: e4c7376d4f29dbd5
+  zh: 6b7a9eaf69c9ea53
+/deepseek-ai-dsh-memory-agent/model-experience/tool-schema/what-the-model-sees:
+  en: bb7f911b3fae47de
+  zh: 2c411070f12cf648
+/deepseek-ai-dsh-memory-agent/model-experience/tool-schema/token-effect:
+  en: 3dd5e58573afbbf4
+  zh: bac558c70c9f8336
+/deepseek-ai-dsh-memory-agent/model-experience/tool-schema/kv-cache-effect:
+  en: 1feba5385a89e702
+  zh: 1a82e64f858760aa
+/deepseek-ai-dsh-memory-agent/model-experience/creation-result:
+  en: b18be6642a9ecfbe
+  zh: 75ed7338a78535df
+/deepseek-ai-dsh-memory-agent/model-experience/creation-result/what-the-model-sees:
+  en: 36a2a278001a2399
+  zh: 7bced344dfdd85e0
+/deepseek-ai-dsh-memory-agent/model-experience/creation-result/token-effect:
+  en: 6ae6e853cddf2a36
+  zh: a6ee235d3a67e579
+/deepseek-ai-dsh-memory-agent/model-experience/creation-result/kv-cache-effect:
+  en: a27f8876e34d4f70
+  zh: d664ec1d36e220c4
+/deepseek-ai-dsh-memory-agent/known-limitations-and-deferred-work:
+  en: dceac442bf5b4184
+  zh: 47c6a84d7d4d6b52
+/deepseek-ai-dsh-memory-agent/known-limitations-and-deferred-work/dev-note:
+  en: eadb07da4a20562d
+  zh: c9c9b3eec8934983

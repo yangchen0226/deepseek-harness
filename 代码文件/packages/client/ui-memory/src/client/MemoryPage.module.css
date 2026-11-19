@@ -1,0 +1,51 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: 960px;
+  height: 100%;
+  margin: 0 auto;
+  padding: calc(var(--dsh-frame-top-clearance, 0px) + 24px) 24px 24px;
+  box-sizing: border-box;
+  min-width: 0;
+}
+.header h1 { margin: 0; font-size: 22px; font-weight: 500; }
+.header p { margin: 8px 0 0; font-size: 13px; color: var(--dsw-alias-text-secondary); }
+.content { min-height: 0; overflow: auto; }
+.workspaceLink {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: calc(100% - 20px);
+  margin-left: 20px;
+  padding: 7px 8px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+.workspaceLink:hover { background: var(--dsw-alias-bg-hover); }
+@media (max-width: 600px) {
+  .page { padding-inline: 16px; }
+}
+
+.activities { display: grid; gap: 24px; overflow-wrap: anywhere; }
+.activities h2 { font-size: 14px; font-weight: 500; }
+.activities section + section { border-top: 1px solid var(--dsw-alias-border-l3); padding-top: 16px; }
+.activities article { padding-block: 8px; border-bottom: 1px solid var(--dsw-alias-border-l3); }
+.activities p { font-size: 13px; }
+.activities time { color: var(--dsw-alias-text-secondary); }
+
+.composer { display: flex; flex-direction: column; gap: 8px; font-size: 13px; }
+.composer label, .composer p { color: var(--dsw-alias-text-secondary); margin: 0; }
+.composerRow { display: flex; align-items: center; gap: 8px; }
+.composerRow > :first-child { flex: 1; min-width: 0; }
+.composerRow > :last-child { flex-shrink: 0; }
+
+.nativeCall { font-size: 13px; color: var(--dsw-alias-text-secondary); padding-block: 8px; }
+.nativeCall summary { cursor: pointer; }
+.nativeCall p { overflow-wrap: anywhere; }

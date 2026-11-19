@@ -1,0 +1,37 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/api/memory-controller/README.md
+/:
+  en: 767b3eef31ce9b5d
+  zh: 8c670b4dcaed0953
+/deepseek-ai-dsh-api-memory-controller:
+  en: a602a005187ee365
+  zh: 4de87e755ef06d74
+/deepseek-ai-dsh-api-memory-controller/summary:
+  en: d0225f4a8130a164
+  zh: 2d1ea70d9599b362
+/deepseek-ai-dsh-api-memory-controller/table-of-contents:
+  en: 889779e8588fa0cb
+  zh: 8117dfa8e313e6a1
+/deepseek-ai-dsh-api-memory-controller/routes:
+  en: 21e3355dd9276ca8
+  zh: 469db510b619bcb5
+/deepseek-ai-dsh-api-memory-controller/contracts:
+  en: d194d43b64514d8b
+  zh: d90bcce4bf208cb5
+/deepseek-ai-dsh-api-memory-controller/client-face:
+  en: e84c015b8f467e8f
+  zh: 7a0673b892e5cf21
+/deepseek-ai-dsh-api-memory-controller/model-experience:
+  en: 803ce352687a11e5
+  zh: a37f508515b22440
+/deepseek-ai-dsh-api-memory-controller/model-experience/kv-cache-effect:
+  en: 47f982e326fe77fd
+  zh: 9dcda8465dec361c
+/deepseek-ai-dsh-api-memory-controller/known-limitations-and-deferred-work:
+  en: f6d24e63ccae9552
+  zh: d69d76dc208ce061
+/deepseek-ai-dsh-api-memory-controller/known-limitations-and-deferred-work/dev-note:
+  en: cc98e639385ee836
+  zh: 6ab38841326a2626

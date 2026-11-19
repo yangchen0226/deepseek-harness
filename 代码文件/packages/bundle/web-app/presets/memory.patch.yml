@@ -1,0 +1,63 @@
+# Agent preset memory: durable memory over a MemoryBear service, hosted or sent
+# by an operator's own deployment.
+#
+# The memory rows stay loadable even when the credential is stored in
+# `ctx.credentials` rather than the launch environment. The provider reports an
+# unavailable/degraded result until a key with the `memory` scope is configured.
+# MEMORYBEAR_BASE_URL selects the deployment, and the hosted origin applies
+# when it is unset.
+- insert:
+    - id: preset-memory
+      name: '@deepseek-ai/dsh-agent-preset'
+      config:
+        id: memory
+        name: Memory
+        description: Recalls durable user memories before each turn and stores each finished turn.
+        order: 2
+        plugins:
+          - id: persona
+            name: '@deepseek-ai/dsh-persona'
+            config:
+              prefix: >-
+                You are a coding agent powered by the {{model}} model. You have durable memory
+                across sessions. Before answering questions about the user's preferences,
+                prior decisions, or earlier work, rely on what the session already recalled;
+                when no relevant memory is available, ask the user for the missing context. Record a fact only when the user states it plainly and it will matter
+                later; never write summaries of the conversation or transient details.
+          - id: agent-instructions
+            name: '@deepseek-ai/dsh-agent-instructions'
+            config:
+              maxBytes: 65536
+          - id: time-context
+            name: '@deepseek-ai/dsh-time-context'
+          - id: tool-bash
+            name: '@deepseek-ai/dsh-tool-bash'
+            disabled: !!js process.platform === 'win32'
+          - id: tool-pwsh
+            name: '@deepseek-ai/dsh-tool-pwsh'
+            disabled: !!js process.platform !== 'win32'
+          - id: tool-fs
+            name: '@deepseek-ai/dsh-tool-fs'
+            config:
+              applyPatch: false
+          - id: tool-fs-search
+            name: '@deepseek-ai/dsh-tool-fs-search'
+            config:
+              sampleOverCapGlobResults: false
+          - id: tool-jobs
+            name: '@deepseek-ai/dsh-tool-jobs'
+          - id: tool-todo
+            name: '@deepseek-ai/dsh-tool-todo'
+            config:
+              allowParallelInProgress: true
+          - id: compaction
+            name: cordis:group
+            group: true
+            isolate:
+              compaction: true
+              toolResultPruner: true
+            config:
+              - id: compaction-basic
+                name: '@deepseek-ai/dsh-compaction-basic'
+              - id: command-compact
+                name: '@deepseek-ai/dsh-command-compact'

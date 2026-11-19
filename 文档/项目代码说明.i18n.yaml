@@ -1,0 +1,28 @@
+# Bilingual-pair consistency record for 项目代码说明.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write 文档/项目代码说明.md
+/project-code-guide:
+  en: 12ee507457372dfc
+  zh: d25098f23d22608e
+/project-code-guide/summary:
+  en: 74b5fad454824ebe
+  zh: 841d35ca92b4dbfe
+/project-code-guide/top-level-layout:
+  en: 66d253573f7a7cc7
+  zh: 1f9fe921c82abc34
+/project-code-guide/package-groups:
+  en: 5d0536fc6c3d203d
+  zh: b16b5d67fe703415
+/project-code-guide/how-a-running-process-is-built:
+  en: d9edc01c079ab81d
+  zh: f924ee740f5a2948
+/project-code-guide/the-core-idea-in-one-paragraph:
+  en: dee2688c7ba74906
+  zh: 54ad95e606b3b677
+/project-code-guide/working-in-the-tree:
+  en: d60e44ca2d18c2b8
+  zh: 2dac3ab26f892ed2
+/project-code-guide/dev-note:
+  en: b33d137859f7c098
+  zh: 78205362acdd0db0

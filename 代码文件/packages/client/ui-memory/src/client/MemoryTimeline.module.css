@@ -1,0 +1,86 @@
+/* Collection timeline: day headings with a rule, entries as a list with a
+   compact meta row so a long history stays scannable. */
+
+.timeline {
+  display: grid;
+  gap: 16px;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.state {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 0;
+  color: var(--dsw-alias-text-secondary);
+}
+
+.group {
+  display: grid;
+  gap: 8px;
+}
+
+.day {
+  margin: 0;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--dsw-alias-border-l3);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--dsw-alias-text-secondary);
+}
+
+.entries {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.entry {
+  display: grid;
+  gap: 4px;
+  padding: 8px 10px;
+  border: 1px solid var(--dsw-alias-border-l3);
+  border-radius: var(--dsw-radius-md);
+  background: var(--dsw-alias-card-fill);
+  overflow-wrap: anywhere;
+}
+
+.entry[data-status='failed'],
+.entry[data-status='unknown'] {
+  border-color: var(--dsw-alias-state-error-secondary);
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--dsw-alias-text-tertiary);
+}
+
+.status {
+  color: var(--dsw-alias-text-secondary);
+}
+
+.muted {
+  color: var(--dsw-alias-text-tertiary);
+}
+
+.question {
+  margin: 0;
+  color: var(--dsw-alias-text-secondary);
+}
+
+.contents {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding-inline-start: 16px;
+  color: var(--dsw-alias-text-primary);
+}

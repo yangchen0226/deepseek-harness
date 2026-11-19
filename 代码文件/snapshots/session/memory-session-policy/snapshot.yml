@@ -1,0 +1,7 @@
+version: 1
+scenario: memory-session-policy
+profile: headless
+composition: default
+recording: authored
+header:
+  class: default

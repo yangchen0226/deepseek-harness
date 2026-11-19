@@ -1,0 +1,78 @@
+{
+  "finalResponse": "No saved preferences.",
+  "auditEvents": [
+    {
+      "type": "memory/call",
+      "seq": 3,
+      "time": 0,
+      "data": {
+        "type": "memory-call",
+        "id": "native-memory-1",
+        "scope": {
+          "kind": "global"
+        },
+        "operation": "recall",
+        "question": "preferences"
+      }
+    },
+    {
+      "type": "memory/result",
+      "seq": 4,
+      "time": 0,
+      "data": {
+        "type": "memory-result",
+        "id": "native-memory-1",
+        "status": "ok",
+        "operation": "recall",
+        "value": {
+          "items": [],
+          "trace": [],
+          "degraded": false,
+          "latencyMs": 0
+        }
+      }
+    }
+  ],
+  "auditNotifications": [
+    {
+      "method": "session.event",
+      "event": {
+        "type": "memory/call",
+        "seq": 3,
+        "time": 0,
+        "data": {
+          "type": "memory-call",
+          "id": "native-memory-1",
+          "scope": {
+            "kind": "global"
+          },
+          "operation": "recall",
+          "question": "preferences"
+        }
+      }
+    },
+    {
+      "method": "session.event",
+      "event": {
+        "type": "memory/result",
+        "seq": 4,
+        "time": 0,
+        "data": {
+          "type": "memory-result",
+          "id": "native-memory-1",
+          "status": "ok",
+          "operation": "recall",
+          "value": {
+            "items": [],
+            "trace": [],
+            "degraded": false,
+            "latencyMs": 0
+          }
+        }
+      }
+    }
+  ],
+  "assistantTexts": [
+    "No saved preferences."
+  ]
+}

@@ -1,0 +1,76 @@
+# Bilingual-pair consistency record for 2026-11-18-consumer-memory-agent-product-design.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write 文档/2026-11-18-consumer-memory-agent-product-design.md
+/agent-note-consumer-product-surfaces-for-memory-and-agents:
+  en: c175c05f2a1b642e
+  zh: e34f98e9356a2353
+/agent-note-consumer-product-surfaces-for-memory-and-agents/problem:
+  en: e375b35a9c5ef7b9
+  zh: 9ea3f4b5ccb02e64
+/agent-note-consumer-product-surfaces-for-memory-and-agents/proposal:
+  en: 5db8c3e93b5ce1b3
+  zh: 9b32921724a750ab
+/agent-note-consumer-product-surfaces-for-memory-and-agents/proposal/design-principles:
+  en: 3950c6bc618e1fa9
+  zh: a8de5272d10742a2
+/agent-note-consumer-product-surfaces-for-memory-and-agents/proposal/information-architecture:
+  en: 22ca8440cf912648
+  zh: bdd943934e3b68b5
+/agent-note-consumer-product-surfaces-for-memory-and-agents/proposal/conversation-surface:
+  en: d53a160d75ce7c6a
+  zh: f7f7fe2a4ecd2189
+/agent-note-consumer-product-surfaces-for-memory-and-agents/proposal/memory-center:
+  en: 9cb2781f0ac4acd1
+  zh: 4e8fe7ecc24182b9
+/agent-note-consumer-product-surfaces-for-memory-and-agents/proposal/agent-center:
+  en: 76494bab8fef54e8
+  zh: 52b1759f2e14115b
+/agent-note-consumer-product-surfaces-for-memory-and-agents/proposal/agent-plaza:
+  en: 34468fb8a2c48e73
+  zh: 5db1aa62fc0af1ce
+/agent-note-consumer-product-surfaces-for-memory-and-agents/proposal/memory-driven-agent-evolution:
+  en: ba8794b89bda30e4
+  zh: 08f14a1efd76b2fa
+/agent-note-consumer-product-surfaces-for-memory-and-agents/proposal/knowledge-base:
+  en: f59f5f8c5f33709b
+  zh: 586df2806d1dfb5f
+/agent-note-consumer-product-surfaces-for-memory-and-agents/proposal/knowledge-base/tiers:
+  en: 020e030c5df943c0
+  zh: 1138f9d3063558be
+/agent-note-consumer-product-surfaces-for-memory-and-agents/proposal/knowledge-base/upgrade-strategy:
+  en: 9acaa5c3f4d77786
+  zh: 86fab6904e5d4cc4
+/agent-note-consumer-product-surfaces-for-memory-and-agents/proposal/knowledge-base/sharing-strategy:
+  en: b973c5ad99d3650c
+  zh: ec7f58ff6e4a3fa0
+/agent-note-consumer-product-surfaces-for-memory-and-agents/proposal/knowledge-base/conversation-and-agent-integration:
+  en: 9a550553c23f4a86
+  zh: 8ecadda9d14711f3
+/agent-note-consumer-product-surfaces-for-memory-and-agents/proposal/agent-execution-records:
+  en: 263f25989461c06d
+  zh: e39a74423d74a207
+/agent-note-consumer-product-surfaces-for-memory-and-agents/proposal/evolution-report:
+  en: 1d09036b0c7cad42
+  zh: e6ca54bb10e8d0e2
+/agent-note-consumer-product-surfaces-for-memory-and-agents/proposal/state-model:
+  en: 80fe24092e1e4ad0
+  zh: 5b978e1da55ceaf0
+/agent-note-consumer-product-surfaces-for-memory-and-agents/proposal/backend-prerequisites:
+  en: 91976628d731af64
+  zh: 4360df764bcce985
+/agent-note-consumer-product-surfaces-for-memory-and-agents/proposal/delivery-order:
+  en: d46afaee908989da
+  zh: 5d60b274ffe9d29b
+/agent-note-consumer-product-surfaces-for-memory-and-agents/alternatives-considered:
+  en: 11c396d51e8b4fa4
+  zh: 61a36a873d07427e
+/agent-note-consumer-product-surfaces-for-memory-and-agents/acceptance-criteria:
+  en: 2caff32ab5632f2b
+  zh: eaa857026c8ae43d
+/agent-note-consumer-product-surfaces-for-memory-and-agents/open-questions:
+  en: 39620d905d8a0b0e
+  zh: 4121646e8489d8a2
+/agent-note-consumer-product-surfaces-for-memory-and-agents/risks:
+  en: 90eeababa51c188d
+  zh: 0d384b2af9a3f97c

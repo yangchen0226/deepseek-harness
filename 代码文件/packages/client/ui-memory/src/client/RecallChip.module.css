@@ -1,0 +1,101 @@
+/* Recall chip: one line above the assistant reply. It sits in the message
+   column at the same left inset as body text so it reads as part of the turn,
+   not as a separate panel. */
+
+.chip {
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 8px;
+  padding: 4px 8px;
+  border: 1px solid var(--dsw-alias-border-l3);
+  border-radius: var(--dsw-radius-md);
+  background: var(--dsw-alias-card-fill);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--dsw-alias-text-secondary);
+}
+
+.chip[data-recall-state='degraded'] {
+  border-color: var(--dsw-alias-border-l3);
+}
+
+.icon {
+  flex: none;
+  font-size: 10px;
+  line-height: 1;
+  color: var(--dsw-alias-text-tertiary);
+}
+
+.chip[data-recall-state='recalled'] .icon {
+  color: var(--dsw-alias-text-secondary);
+}
+
+.chip[data-recall-state='degraded'] .icon {
+  color: var(--dsw-alias-state-error-primary);
+}
+
+.summary {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--dsw-alias-text-secondary);
+  text-align: start;
+  cursor: pointer;
+}
+
+.summary[aria-expanded='false'] {
+  cursor: pointer;
+}
+
+.more {
+  color: var(--dsw-alias-text-tertiary);
+}
+
+.items {
+  flex-basis: 100%;
+  display: grid;
+  gap: 4px;
+  margin: 4px 0 0;
+  padding: 8px 0 0;
+  border-top: 1px solid var(--dsw-alias-border-l3);
+  list-style: none;
+  color: var(--dsw-alias-text-primary);
+  overflow-wrap: anywhere;
+}
+
+.item {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+/* Write acceptance sits under the recall chip as a second line of the same
+   turn activity, so a reader sees what went in and what came out together. */
+.acceptance {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  padding: 4px 8px;
+  border: 1px solid var(--dsw-alias-border-l3);
+  border-radius: var(--dsw-radius-md);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--dsw-alias-text-secondary);
+}
+
+.acceptance[data-write-state='failed'] {
+  border-color: var(--dsw-alias-state-error-secondary);
+}
+
+.acceptance[data-write-state='failed'] .icon {
+  color: var(--dsw-alias-state-error-primary);
+}
+

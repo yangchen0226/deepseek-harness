@@ -1,0 +1,28 @@
+# Bilingual-pair consistency record for 2026-11-18-scoped-memory-policy.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write docs/persistence-changes/2026-11-18-scoped-memory-policy.md
+/:
+  en: 3d5a424ae7d7e46b
+  zh: c22a8e4a62d8cc1a
+/2026-11-18-scoped-memory-policy:
+  en: 790fce85290eef4d
+  zh: 891ecfbbdba16c96
+/2026-11-18-scoped-memory-policy/summary:
+  en: 7b46823777b8c498
+  zh: eeaabaafe42f13a4
+/2026-11-18-scoped-memory-policy/table-of-contents:
+  en: 6cf314a069ceb451
+  zh: 9adff678e9ecab3b
+/2026-11-18-scoped-memory-policy/declaration:
+  en: 6907136f28e48c90
+  zh: 02f8298485f3d8e7
+/2026-11-18-scoped-memory-policy/compatibility:
+  en: 171b9073e46f8701
+  zh: d6aa547ee93857be
+/2026-11-18-scoped-memory-policy/verification:
+  en: 282564a58c664d84
+  zh: 82eec997f47dd00b
+/2026-11-18-scoped-memory-policy/dev-note:
+  en: b75c8458928b72b9
+  zh: 003ba4e17b4b5269

@@ -2,54 +2,39 @@
 # section, a hash of its English and Chinese blocks outside code blocks and generated regions.
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write .agents/notes/proposed/feature/2026-11-13-memorybear-integration-plan.md
-/agent-note-deep-memorybear-integration-plan:
-  en: d50eeaec5a4d1094
-  zh: 730e249156c4c5c6
-/agent-note-deep-memorybear-integration-plan/problem:
-  en: 218d59ccefcb45b2
-  zh: 0708306b999094ba
-/agent-note-deep-memorybear-integration-plan/problem/packaging-constraints-learned-the-hard-way:
-  en: f31080f2c62970c7
-  zh: 6afbb8c413e386e2
-/agent-note-deep-memorybear-integration-plan/proposal:
-  en: 77a9bf3a58cf0ecf
-  zh: 422c8fab9245a9e6
-/agent-note-deep-memorybear-integration-plan/layering-and-package-structure:
-  en: ca44223e62c50533
-  zh: f777a0d01d25f916
-/agent-note-deep-memorybear-integration-plan/layering-and-package-structure/service-definition-shape:
-  en: c1e2bedd19cf05a2
-  zh: 4a1b1bbc44f17a3b
-/agent-note-deep-memorybear-integration-plan/identity-mapping:
-  en: 9a59c8a4a646e33a
-  zh: 1bc8dbe4947e01ba
-/agent-note-deep-memorybear-integration-plan/session-behavior:
-  en: 6d77d81c589d20c7
-  zh: 0568bc6db5e4002b
-/agent-note-deep-memorybear-integration-plan/model-visible-tool-contract:
-  en: d2bf5b1b9f197562
-  zh: 590c9e23b4a72eb4
-/agent-note-deep-memorybear-integration-plan/client-memorybear-pages-the-session-window:
-  en: 83c2c3ec3ee3fda0
-  zh: c0459424034c1a16
-/agent-note-deep-memorybear-integration-plan/agent-creation:
-  en: 1f196eb3a02b4da6
-  zh: fd671bd5b3f6425d
-/agent-note-deep-memorybear-integration-plan/real-usage-scenarios:
-  en: ef9052786fda9958
-  zh: f292e1f6b635236c
-/agent-note-deep-memorybear-integration-plan/implementation-order:
-  en: 688a00c81b96d4c7
-  zh: 6402c1db2018823e
-/agent-note-deep-memorybear-integration-plan/alternatives-considered:
-  en: 0bd4010c3fa2dcd2
-  zh: e144774439ea7e5c
-/agent-note-deep-memorybear-integration-plan/acceptance-criteria:
-  en: d969699d756ef9ac
-  zh: afb6db8d4b37b5a2
-/agent-note-deep-memorybear-integration-plan/risks:
-  en: ef32e5308a58c13f
-  zh: b0558adfa9860faf
-/agent-note-deep-memorybear-integration-plan/open-questions:
-  en: 9e254307ed382fb6
-  zh: 9480f2f846543a80
+/agent-note-workspace-and-global-memory-with-native-model-calls:
+  en: dca7896a08200369
+  zh: 073631a31332f47d
+/agent-note-workspace-and-global-memory-with-native-model-calls/problem:
+  en: e127075bf9b8d512
+  zh: dd48d448f08ae1d6
+/agent-note-workspace-and-global-memory-with-native-model-calls/proposal:
+  en: 417711a4ec48ea37
+  zh: b52d316d731209b6
+/agent-note-workspace-and-global-memory-with-native-model-calls/memory-scopes:
+  en: 1b8f7eb8e65091fb
+  zh: 84f0e01bbbae29e9
+/agent-note-workspace-and-global-memory-with-native-model-calls/native-model-calls:
+  en: 0bb8fdf9e4df5146
+  zh: eb5ff759ada5d9db
+/agent-note-workspace-and-global-memory-with-native-model-calls/navigation-and-views:
+  en: 0e3b1a637fd761af
+  zh: 08fb729e2bcabe37
+/agent-note-workspace-and-global-memory-with-native-model-calls/memorybear-integration:
+  en: d33963db19b53e9f
+  zh: c6cd850ebf58dc21
+/agent-note-workspace-and-global-memory-with-native-model-calls/implementation-order:
+  en: da0af64b01eca70d
+  zh: 642b559e69ecb4c3
+/agent-note-workspace-and-global-memory-with-native-model-calls/alternatives-considered:
+  en: f4480b84e6aea866
+  zh: 88ccb51d959440eb
+/agent-note-workspace-and-global-memory-with-native-model-calls/acceptance-criteria:
+  en: 36a306b9966677ae
+  zh: 2cafce3dc3fc816a
+/agent-note-workspace-and-global-memory-with-native-model-calls/open-questions:
+  en: 1c1cc1034b7a37bb
+  zh: 689503a3c25bfbcc
+/agent-note-workspace-and-global-memory-with-native-model-calls/risks:
+  en: 5b34f26bb8af5721
+  zh: 286729c37739eaac

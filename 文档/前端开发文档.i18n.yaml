@@ -1,0 +1,88 @@
+# Bilingual-pair consistency record for 前端开发文档.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write 文档/前端开发文档.md
+/front-end-development-guide-memory-agents-plaza-evolution-knowledge:
+  en: 84bf13f845ae8ed0
+  zh: 4c7cab9b16a1537f
+/front-end-development-guide-memory-agents-plaza-evolution-knowledge/scope:
+  en: ace3c4325014b71b
+  zh: 49bb37c2bc80c844
+/front-end-development-guide-memory-agents-plaza-evolution-knowledge/architecture-placement:
+  en: ef3eb0d8b96ba76a
+  zh: 324ba5d08e6c098a
+/front-end-development-guide-memory-agents-plaza-evolution-knowledge/page-inventory-and-route-map:
+  en: ceca8c04d358b23d
+  zh: cc4be8cac2917df8
+/front-end-development-guide-memory-agents-plaza-evolution-knowledge/page-inventory-and-route-map/navigation-rules:
+  en: f3d5b1841aedbc61
+  zh: d13a14bfd590557d
+/front-end-development-guide-memory-agents-plaza-evolution-knowledge/conversation-surface:
+  en: a4e5f11677dea1f2
+  zh: 80cc41ffc7122d0d
+/front-end-development-guide-memory-agents-plaza-evolution-knowledge/conversation-surface/recall-chip:
+  en: 07ae5429022afede
+  zh: 4bc55a4915bf049d
+/front-end-development-guide-memory-agents-plaza-evolution-knowledge/conversation-surface/memory-lens:
+  en: 5980f41641ce3030
+  zh: dc3632907ce3a2e3
+/front-end-development-guide-memory-agents-plaza-evolution-knowledge/conversation-surface/write-acceptance-card:
+  en: 636788a906e79954
+  zh: d122bed529a6dd75
+/front-end-development-guide-memory-agents-plaza-evolution-knowledge/conversation-surface/memory-diff-review:
+  en: 7d596e8f68e937d2
+  zh: 211aeed85a07c2b7
+/front-end-development-guide-memory-agents-plaza-evolution-knowledge/conversation-surface/step-timeline:
+  en: 8ed331a0db27d59a
+  zh: 68be83e785bf254c
+/front-end-development-guide-memory-agents-plaza-evolution-knowledge/conversation-surface/subagent-tree:
+  en: b5d094f0883bb1f8
+  zh: 4bcd8ed22df1a1f9
+/front-end-development-guide-memory-agents-plaza-evolution-knowledge/conversation-surface/approval-card:
+  en: c9cf35e8dd6bb694
+  zh: 75ba361d4513e161
+/front-end-development-guide-memory-agents-plaza-evolution-knowledge/conversation-surface/artifacts-rail:
+  en: 2ae874cc2b7a020c
+  zh: 8276cf416dd0083f
+/front-end-development-guide-memory-agents-plaza-evolution-knowledge/memory-center:
+  en: 91c4b997a1384dfb
+  zh: da2f7b88413bc94c
+/front-end-development-guide-memory-agents-plaza-evolution-knowledge/agent-center:
+  en: fbf4b0818d10ef17
+  zh: 0e12836759be8006
+/front-end-development-guide-memory-agents-plaza-evolution-knowledge/agent-plaza:
+  en: b3458729098c798d
+  zh: 009b4ffbdf817a05
+/front-end-development-guide-memory-agents-plaza-evolution-knowledge/knowledge-center:
+  en: 6739ff0463deb0dc
+  zh: 9e9cd778d903b690
+/front-end-development-guide-memory-agents-plaza-evolution-knowledge/visual-design:
+  en: 8a763828893f79bd
+  zh: 5482d846cce41882
+/front-end-development-guide-memory-agents-plaza-evolution-knowledge/visual-design/tokens:
+  en: 58c9618dd9a89eba
+  zh: aec54239231ad663
+/front-end-development-guide-memory-agents-plaza-evolution-knowledge/visual-design/layout-and-density:
+  en: 5b156f1246c22a1d
+  zh: c1bb1d8a375bd1f1
+/front-end-development-guide-memory-agents-plaza-evolution-knowledge/visual-design/interaction-specifications:
+  en: 3e14c21dadf965d5
+  zh: 10917fc0cf332f86
+/front-end-development-guide-memory-agents-plaza-evolution-knowledge/visual-design/accessibility-and-motion:
+  en: 835a19089e2141d2
+  zh: f0916877a8b06db2
+/front-end-development-guide-memory-agents-plaza-evolution-knowledge/state-ownership:
+  en: b9cd89db168574c6
+  zh: d1c9f118a2f0bbd6
+/front-end-development-guide-memory-agents-plaza-evolution-knowledge/copy-and-localization:
+  en: c5f11ba6b3272f57
+  zh: a8cbd8fe9b7c1f3b
+/front-end-development-guide-memory-agents-plaza-evolution-knowledge/performance-budgets:
+  en: 78a45bdbaf754cfc
+  zh: 987aae9d2e832549
+/front-end-development-guide-memory-agents-plaza-evolution-knowledge/testing:
+  en: 8f0c1230dbb49e9c
+  zh: 7efad078f435bbe3
+/front-end-development-guide-memory-agents-plaza-evolution-knowledge/delivery-order:
+  en: 054b661bfd30d0f2
+  zh: e12bc8dd648a1fa7
